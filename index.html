@@ -874,12 +874,14 @@
       state.username = username;
       state.sessionToken = generateToken();
       state.demoMode = false;
+      state.schoologyUsername = username;
+      state.schoologyPassword = password;
 
       sessionStorage.setItem('schoology_session', JSON.stringify({
         username, token: state.sessionToken, timestamp: Date.now(), demo: false
       }));
 
-      loadDemoData();
+      // Don't load demo data - fetch real data via MCP
       showApp();
     }
 
@@ -898,7 +900,10 @@
       state.demoMode = false;
       state.sessionToken = null;
       state.username = null;
+      state.schoologyUsername = null;
+      state.schoologyPassword = null;
       sessionStorage.removeItem('schoology_session');
+      sessionStorage.removeItem('schoology_credentials');
       hideApp();
     }
 
@@ -946,7 +951,10 @@
             state.username = data.username;
             state.sessionToken = data.token;
             state.demoMode = data.demo || false;
-            loadDemoData();
+            // Only load demo data if in demo mode, otherwise use real MCP data
+            if (state.demoMode) {
+              loadDemoData();
+            }
             showApp();
             return true;
           }
@@ -1181,12 +1189,48 @@ ${state.posts.map(p => `- ${p.author}: ${p.content.substring(0, 100)}...`).join(
       const div = document.createElement('div');
       div.className = `chat-message ${type}`;
       if (type === 'assistant') {
-        div.innerHTML = `<div class="markdown-content">${renderMarkdown(content)}</div>`;
+        // For assistant messages, use typewriter animation
+        div.innerHTML = `<div class="markdown-content"></div>`;
+        container.appendChild(div);
+        typewriterEffect(div.querySelector('.markdown-content'), content);
       } else {
         div.textContent = content;
+        container.appendChild(div);
       }
-      container.appendChild(div);
       container.scrollTop = container.scrollHeight;
+    }
+
+    // Typewriter effect for AI responses
+    function typewriterEffect(element, content, speed = 25) {
+      const container = document.getElementById('chatMessages');
+      const rendered = renderMarkdown(content);
+      element.innerHTML = '';
+
+      // Get plain text for animation
+      let text = content
+        .replace(/```[\s\S]*?```/g, (m) => '```code```')
+        .replace(/`[^`]*`/g, (m) => m.replace(/`/g, ''))
+        .replace(/\[([^\]]*)\]\([^)]*\)/g, '$1')
+        .replace(/[#*_~]/g, '')
+        .replace(/\n+/g, ' ')
+        .trim();
+
+      let index = 0;
+
+      function tick() {
+        if (index < text.length) {
+          // Show partial markdown (faster than rendering HTML each time)
+          element.innerHTML = renderMarkdown(text.substring(0, index + 1));
+          index++;
+          container.scrollTop = container.scrollHeight;
+          setTimeout(tick, speed);
+        } else {
+          element.innerHTML = rendered;
+          container.scrollTop = container.scrollHeight;
+        }
+      }
+
+      tick();
     }
 
     function showTypingIndicator() {
