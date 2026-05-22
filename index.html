@@ -6,7 +6,11 @@
   <title>Schoology Help</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Didact+Gothic&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Didact+Gothic&family=Oxygen+Mono&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -32,23 +36,12 @@
 
     .container { max-width: 900px; margin: 0 auto; padding: 40px 20px; }
 
-    header {
-      margin-bottom: 40px;
-    }
+    header { margin-bottom: 40px; }
 
-    h1 {
-      font-size: 2rem;
-      font-weight: 600;
-      color: var(--text);
-      margin-bottom: 8px;
-    }
+    h1 { font-size: 2rem; font-weight: 400; color: var(--text); margin-bottom: 8px; }
 
-    .subtitle {
-      color: var(--text-secondary);
-      font-size: 0.95rem;
-    }
+    .subtitle { color: var(--text-secondary); font-size: 0.95rem; }
 
-    /* Section */
     .section {
       background: var(--surface);
       border-radius: 12px;
@@ -59,12 +52,11 @@
 
     .section-title {
       font-size: 1.1rem;
-      font-weight: 600;
+      font-weight: 400;
       margin-bottom: 16px;
       color: var(--text);
     }
 
-    /* Sign in panel - slides in from top */
     .auth-panel {
       background: var(--surface);
       border-radius: 12px;
@@ -74,53 +66,43 @@
       display: none;
     }
 
-    .auth-panel.visible {
-      display: block;
-    }
+    .auth-panel.visible { display: block; }
 
     .auth-panel h3 {
       font-size: 1rem;
-      font-weight: 600;
+      font-weight: 400;
       margin-bottom: 16px;
     }
 
-    .auth-form {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      max-width: 400px;
-    }
+    .auth-form { display: flex; flex-direction: column; gap: 12px; max-width: 400px; }
 
     .auth-form input {
       padding: 12px 16px;
       border: 1px solid var(--border);
       border-radius: 8px;
       font-size: 0.95rem;
+      font-family: 'Didact Gothic', sans-serif;
       background: var(--bg);
       color: var(--text);
     }
 
-    .auth-form input:focus {
-      outline: none;
-      border-color: var(--primary);
-    }
+    .auth-form input:focus { outline: none; border-color: var(--primary); }
 
     .auth-form a {
       color: var(--primary);
       text-decoration: none;
       font-size: 0.9rem;
+      font-family: 'Didact Gothic', sans-serif;
       padding: 12px 16px;
       text-align: center;
       border: 1px solid var(--primary);
       border-radius: 8px;
       transition: background 0.2s;
+      cursor: pointer;
     }
 
-    .auth-form a:hover {
-      background: rgba(0, 113, 227, 0.05);
-    }
+    .auth-form a:hover { background: rgba(0, 113, 227, 0.05); }
 
-    /* Grade cards - clickable */
     .grade-card {
       background: var(--surface);
       border: 1px solid var(--border);
@@ -131,30 +113,14 @@
       transition: box-shadow 0.2s, border-color 0.2s;
     }
 
-    .grade-card:hover {
-      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
-      border-color: var(--primary);
-    }
+    .grade-card:hover { box-shadow: 0 2px 12px rgba(0,0,0,0.08); border-color: var(--primary); }
+    .grade-card.expanded { border-color: var(--primary); }
 
-    .grade-card.expanded {
-      border-color: var(--primary);
-    }
+    .grade-header { display: flex; justify-content: space-between; align-items: center; }
 
-    .grade-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
+    .course-name { font-weight: 400; font-size: 1rem; }
 
-    .course-name {
-      font-weight: 500;
-      font-size: 1rem;
-    }
-
-    .grade-value {
-      font-size: 1.25rem;
-      font-weight: 600;
-    }
+    .grade-value { font-size: 1.25rem; font-weight: 400; }
 
     .grade-a { color: var(--success); }
     .grade-b { color: var(--primary); }
@@ -168,101 +134,40 @@
       display: none;
     }
 
-    .grade-card.expanded .grade-details {
-      display: block;
-    }
+    .grade-card.expanded .grade-details { display: block; }
 
-    .detail-row {
-      display: flex;
-      justify-content: space-between;
-      padding: 8px 0;
-      font-size: 0.9rem;
-    }
+    .detail-row { display: flex; justify-content: space-between; padding: 8px 0; font-size: 0.9rem; }
+    .detail-label { color: var(--text-secondary); }
 
-    .detail-label {
-      color: var(--text-secondary);
-    }
-
-    /* Assignment list */
     .assignment-item {
       padding: 16px 0;
       border-bottom: 1px solid var(--border);
       cursor: pointer;
     }
 
-    .assignment-item:last-child {
-      border-bottom: none;
-    }
+    .assignment-item:last-child { border-bottom: none; }
+    .assignment-item:hover { background: rgba(0,113,227,0.02); margin: 0 -12px; padding: 16px 12px; }
 
-    .assignment-item:hover {
-      background: rgba(0,113,227,0.02);
-      margin: 0 -12px;
-      padding: 16px 12px;
-    }
+    .assignment-title { font-weight: 400; margin-bottom: 4px; }
+    .assignment-meta { font-size: 0.85rem; color: var(--text-secondary); }
+    .assignment-due { font-size: 0.85rem; color: var(--text-secondary); }
+    .assignment-due.overdue { color: var(--error); }
+    .assignment-due.soon { color: var(--warning); }
 
-    .assignment-title {
-      font-weight: 500;
-      margin-bottom: 4px;
-    }
+    .post-item { padding: 16px 0; border-bottom: 1px solid var(--border); }
+    .post-item:last-child { border-bottom: none; }
+    .post-author { font-weight: 400; margin-bottom: 4px; }
+    .post-time { font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 8px; }
+    .post-content { font-size: 0.95rem; color: var(--text); line-height: 1.6; }
 
-    .assignment-meta {
-      font-size: 0.85rem;
-      color: var(--text-secondary);
-    }
-
-    .assignment-due {
-      font-size: 0.85rem;
-      color: var(--text-secondary);
-    }
-
-    .assignment-due.overdue {
-      color: var(--error);
-    }
-
-    .assignment-due.soon {
-      color: var(--warning);
-    }
-
-    /* Post list */
-    .post-item {
-      padding: 16px 0;
-      border-bottom: 1px solid var(--border);
-    }
-
-    .post-item:last-child {
-      border-bottom: none;
-    }
-
-    .post-author {
-      font-weight: 500;
-      margin-bottom: 4px;
-    }
-
-    .post-time {
-      font-size: 0.8rem;
-      color: var(--text-secondary);
-      margin-bottom: 8px;
-    }
-
-    .post-content {
-      font-size: 0.95rem;
-      color: var(--text);
-      line-height: 1.6;
-    }
-
-    /* AI Chat section */
-    .ai-section {
-      display: none;
-    }
-
-    .ai-section.visible {
-      display: block;
-    }
+    /* AI Chat */
+    .ai-section { display: none; }
+    .ai-section.visible { display: block; }
 
     .ai-container {
       display: flex;
       flex-direction: column;
-      height: 400px;
+      height: 450px;
     }
 
     .chat-messages {
@@ -274,16 +179,14 @@
       margin-bottom: 16px;
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      gap: 16px;
     }
 
     .chat-message {
       padding: 12px 16px;
       border-radius: 16px;
-      max-width: 85%;
-      line-height: 1.5;
-      white-space: pre-wrap;
-      word-wrap: break-word;
+      max-width: 90%;
+      line-height: 1.6;
       font-size: 0.95rem;
     }
 
@@ -306,41 +209,435 @@
       color: var(--error);
     }
 
-    .chat-input-area {
-      display: flex;
-      gap: 12px;
+    /* Markdown Content in Chat */
+    .chat-message .markdown-content {
+      font-family: 'Didact Gothic', sans-serif;
     }
 
-    .chat-input-area input {
+    .chat-message .markdown-content h1 { font-size: 1.4rem; margin: 12px 0 8px; font-weight: 400; }
+    .chat-message .markdown-content h2 { font-size: 1.2rem; margin: 10px 0 6px; font-weight: 400; }
+    .chat-message .markdown-content h3 { font-size: 1.05rem; margin: 8px 0 4px; font-weight: 400; }
+
+    .chat-message .markdown-content p { margin: 8px 0; }
+
+    .chat-message .markdown-content hr {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 16px 0;
+    }
+
+    .chat-message .markdown-content ul, .chat-message .markdown-content ol {
+      margin: 8px 0;
+      padding-left: 24px;
+    }
+
+    .chat-message .markdown-content li { margin: 4px 0; }
+
+    .chat-message .markdown-content code {
+      background: rgba(0,0,0,0.06);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: 'Oxygen Mono', monospace;
+      font-size: 0.85rem;
+    }
+
+    .chat-message .markdown-content pre {
+      background: #2d2d2d;
+      color: #f8f8f2;
+      padding: 16px;
+      border-radius: 8px;
+      overflow-x: auto;
+      margin: 12px 0;
+      position: relative;
+    }
+
+    .chat-message .markdown-content pre code {
+      background: none;
+      padding: 0;
+      color: inherit;
+      font-size: 0.85rem;
+      line-height: 1.5;
+    }
+
+    .chat-message .markdown-content blockquote {
+      border-left: 3px solid var(--primary);
+      padding-left: 12px;
+      margin: 12px 0;
+      color: var(--text-secondary);
+      font-style: italic;
+    }
+
+    .chat-message .markdown-content table {
+      border-collapse: collapse;
+      margin: 12px 0;
+      width: 100%;
+    }
+
+    .chat-message .markdown-content th, .chat-message .markdown-content td {
+      border: 1px solid var(--border);
+      padding: 8px 12px;
+      text-align: left;
+    }
+
+    .chat-message .markdown-content th { background: var(--bg); font-weight: 400; }
+
+    .chat-message .markdown-content strong { font-weight: 600; }
+    .chat-message .markdown-content em { font-style: italic; }
+
+    .chat-message .markdown-content a { color: var(--primary); text-decoration: none; }
+    .chat-message .markdown-content a:hover { text-decoration: underline; }
+
+    .chat-message .markdown-content img { max-width: 100%; border-radius: 8px; margin: 8px 0; }
+
+    /* Code block with copy button */
+    .code-block {
+      position: relative;
+      background: #2d2d2d;
+      border-radius: 8px;
+      margin: 12px 0;
+    }
+
+    .code-block pre {
+      margin: 0;
+      padding: 16px;
+      overflow-x: auto;
+    }
+
+    .code-block code {
+      font-family: 'Oxygen Mono', monospace;
+      font-size: 0.85rem;
+      color: #f8f8f2;
+      line-height: 1.5;
+    }
+
+    .copy-btn {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      background: rgba(255,255,255,0.1);
+      border: none;
+      color: #aaa;
+      padding: 6px 10px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-family: 'Didact Gothic', sans-serif;
+      font-size: 0.8rem;
+      transition: background 0.2s, color 0.2s;
+    }
+
+    .copy-btn:hover { background: rgba(255,255,255,0.2); color: #fff; }
+    .copy-btn.copied { color: var(--success); }
+
+    /* LaTeX */
+    .chat-message .markdown-content .katex-display {
+      margin: 12px 0;
+      overflow-x: auto;
+    }
+
+    /* Chat input area */
+    .chat-input-area { display: flex; flex-direction: column; gap: 12px; }
+
+    .chat-input-row { display: flex; gap: 12px; align-items: center; }
+
+    .chat-input-row input {
       flex: 1;
       padding: 14px 18px;
       border: 1px solid var(--border);
       border-radius: 24px;
       font-size: 1rem;
+      font-family: 'Didact Gothic', sans-serif;
       background: var(--surface);
     }
 
-    .chat-input-area input:focus {
-      outline: none;
-      border-color: var(--primary);
-    }
+    .chat-input-row input:focus { outline: none; border-color: var(--primary); }
 
-    /* Model selector */
     .model-select {
-      padding: 8px 12px;
+      padding: 10px 14px;
       border: 1px solid var(--border);
-      border-radius: 6px;
-      font-size: 0.85rem;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-family: 'Didact Gothic', sans-serif;
       background: var(--surface);
       color: var(--text);
       cursor: pointer;
     }
 
-    .ai-header {
+    /* Attachments toolbar */
+    .chat-tools {
       display: flex;
-      justify-content: space-between;
+      gap: 12px;
+      padding: 8px 0;
+      border-top: 1px solid var(--border);
+    }
+
+    .chat-tool {
+      display: flex;
       align-items: center;
-      margin-bottom: 16px;
+      gap: 6px;
+      padding: 8px 12px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      cursor: pointer;
+      font-family: 'Didact Gothic', sans-serif;
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      transition: background 0.2s, border-color 0.2s;
+    }
+
+    .chat-tool:hover { background: var(--surface); border-color: var(--primary); color: var(--primary); }
+
+    .chat-tool svg { width: 16px; height: 16px; }
+
+    .file-input { display: none; }
+
+    /* Image preview */
+    .image-preview {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .image-preview-item {
+      position: relative;
+      width: 80px;
+      height: 80px;
+      border-radius: 8px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+
+    .image-preview-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .image-preview-item .remove-btn {
+      position: absolute;
+      top: 2px;
+      right: 2px;
+      background: rgba(0,0,0,0.5);
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 20px;
+      height: 20px;
+      cursor: pointer;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* OCR Progress */
+    .ocr-progress {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      padding: 8px 0;
+    }
+
+    /* Wikipedia result */
+    .wiki-result {
+      background: var(--bg);
+      border-radius: 8px;
+      padding: 12px;
+      margin: 8px 0;
+    }
+
+    .wiki-result a {
+      color: var(--primary);
+      font-weight: 400;
+    }
+
+    .wiki-result .wiki-title {
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    /* Weather widget */
+    .weather-widget {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px;
+      background: var(--bg);
+      border-radius: 8px;
+      margin: 8px 0;
+    }
+
+    .weather-temp { font-size: 1.5rem; font-weight: 400; }
+    .weather-desc { color: var(--text-secondary); font-size: 0.9rem; }
+
+    /* Notifications */
+    .notification {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 14px 24px;
+      background: var(--text);
+      color: white;
+      border-radius: 10px;
+      font-size: 0.95rem;
+      z-index: 1000;
+      animation: slideUp 0.3s ease;
+      max-width: 90%;
+      text-align: center;
+    }
+
+    .notification.success { background: var(--success); }
+    .notification.error { background: var(--error); }
+    .notification.info { background: var(--primary); }
+
+    @keyframes slideUp {
+      from { transform: translateX(-50%) translateY(20px); opacity: 0; }
+      to { transform: translateX(-50%) translateY(0); opacity: 1; }
+    }
+
+    /* Navigation */
+    .nav-tabs {
+      display: flex;
+      gap: 4px;
+      margin-bottom: 24px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+    }
+
+    .nav-tab {
+      padding: 10px 18px;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      color: var(--text-secondary);
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background 0.2s, color 0.2s;
+      font-family: 'Didact Gothic', sans-serif;
+    }
+
+    .nav-tab:hover { background: rgba(0,113,227,0.08); color: var(--primary); }
+    .nav-tab.active { background: var(--primary); color: white; }
+
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+
+    /* User badge */
+    .user-badge {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      margin-top: 8px;
+    }
+
+    .user-badge .avatar {
+      width: 28px;
+      height: 28px;
+      background: var(--primary);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 0.8rem;
+    }
+
+    .user-badge a {
+      color: var(--error);
+      text-decoration: none;
+      margin-left: 8px;
+    }
+
+    .user-badge a:hover { text-decoration: underline; }
+
+    .status {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      margin-top: 16px;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--text-secondary);
+    }
+
+    .status-dot.ok { background: var(--success); }
+    .status-dot.error { background: var(--error); }
+
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--text-secondary);
+    }
+
+    /* Emoji picker */
+    .emoji-btn {
+      position: relative;
+    }
+
+    .emoji-picker {
+      position: absolute;
+      bottom: 100%;
+      left: 0;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 8px;
+      display: none;
+      flex-wrap: wrap;
+      gap: 4px;
+      width: 250px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+    .emoji-picker.visible { display: flex; }
+
+    .emoji-picker span {
+      cursor: pointer;
+      font-size: 1.2rem;
+      padding: 4px;
+      border-radius: 4px;
+    }
+
+    .emoji-picker span:hover { background: var(--bg); }
+
+    /* Web search results */
+    .search-result {
+      background: var(--bg);
+      border-radius: 8px;
+      padding: 12px;
+      margin: 8px 0;
+    }
+
+    .search-result a {
+      color: var(--primary);
+      text-decoration: none;
+      font-weight: 400;
+    }
+
+    .search-result .search-title {
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .search-result .search-snippet {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+    }
+
+    /* Response time indicator */
+    .response-meta {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      margin-top: 4px;
+      padding-left: 12px;
     }
 
     /* Typing indicator */
@@ -371,130 +668,12 @@
       40% { transform: translateY(-6px); }
     }
 
-    /* Navigation tabs */
-    .nav-tabs {
-      display: flex;
-      gap: 4px;
-      margin-bottom: 24px;
-      overflow-x: auto;
-      padding-bottom: 4px;
-    }
-
-    .nav-tab {
-      padding: 10px 18px;
-      border-radius: 8px;
-      font-size: 0.9rem;
-      color: var(--text-secondary);
-      cursor: pointer;
-      white-space: nowrap;
-      transition: background 0.2s, color 0.2s;
-    }
-
-    .nav-tab:hover {
-      background: rgba(0,113,227,0.08);
-      color: var(--primary);
-    }
-
-    .nav-tab.active {
-      background: var(--primary);
-      color: white;
-    }
-
-    /* Tab content */
-    .tab-content {
-      display: none;
-    }
-
-    .tab-content.active {
-      display: block;
-    }
-
-    /* Sign in link for AI */
-    .ai-signin {
-      text-align: center;
-      padding: 60px 20px;
-    }
-
-    .ai-signin p {
-      color: var(--text-secondary);
-      margin-bottom: 16px;
-    }
-
-    .ai-signin a {
-      color: var(--primary);
-      text-decoration: none;
-      font-weight: 500;
-    }
-
-    .ai-signin a:hover {
-      text-decoration: underline;
-    }
-
-    /* User badge */
-    .user-badge {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 0.9rem;
-      color: var(--text-secondary);
-    }
-
-    .user-badge .avatar {
-      width: 28px;
-      height: 28px;
-      background: var(--primary);
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: white;
-      font-size: 0.8rem;
-      font-weight: 500;
-    }
-
-    .user-badge a {
-      color: var(--error);
-      text-decoration: none;
-      margin-left: 8px;
-    }
-
-    .user-badge a:hover {
-      text-decoration: underline;
-    }
-
-    /* Status indicator */
-    .status {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 0.85rem;
-      color: var(--text-secondary);
-      margin-top: 16px;
-    }
-
-    .status-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: var(--text-secondary);
-    }
-
-    .status-dot.ok { background: var(--success); }
-    .status-dot.error { background: var(--error); }
-
-    /* Empty state */
-    .empty-state {
-      text-align: center;
-      padding: 40px 20px;
-      color: var(--text-secondary);
-    }
-
-    /* Responsive */
     @media (max-width: 600px) {
       .container { padding: 20px 16px; }
       h1 { font-size: 1.6rem; }
       .section { padding: 16px; }
       .nav-tab { padding: 8px 12px; font-size: 0.85rem; }
+      .chat-tool span { display: none; }
     }
   </style>
 </head>
@@ -516,7 +695,7 @@
       </div>
     </header>
 
-    <!-- Auth Panel (shows when signed in) -->
+    <!-- Auth Panel -->
     <div class="auth-panel" id="authPanel">
       <h3>Sign in with your Schoology credentials</h3>
       <form class="auth-form" onsubmit="handleAuthSubmit(event)">
@@ -544,7 +723,6 @@
         <div class="section-title">Your Grades</div>
         <div id="gradesOverview"></div>
       </div>
-
       <div class="section">
         <div class="section-title">Upcoming Assignments</div>
         <div id="assignmentsOverview"></div>
@@ -578,7 +756,7 @@
     <!-- AI Assistant Tab -->
     <div class="tab-content" id="tab-ai">
       <div class="section ai-section" id="aiContent">
-        <div class="ai-header">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
           <div class="section-title" style="margin-bottom: 0;">AI Study Assistant</div>
           <select class="model-select" id="modelSelect">
             <option value="deepseek-chat">DeepSeek Chat</option>
@@ -588,8 +766,71 @@
 
         <div class="ai-container">
           <div class="chat-messages" id="chatMessages"></div>
+
+          <div id="imagePreviewContainer" class="image-preview" style="display: none;"></div>
+          <div id="ocrProgress" class="ocr-progress" style="display: none;"></div>
+
           <div class="chat-input-area">
-            <input type="text" id="chatInput" placeholder="Ask about your grades, assignments, or courses..." onkeydown="handleChatKeydown(event)">
+            <div class="chat-input-row">
+              <input type="text" id="chatInput" placeholder="Ask anything..." onkeydown="handleChatKeydown(event)">
+              <div class="emoji-btn">
+                <svg onclick="toggleEmojiPicker()" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="10"/>
+                  <path d="M8 14s1.5 2 4 2 4-2 4-2"/>
+                  <line x1="9" y1="9" x2="9.01" y2="9"/>
+                  <line x1="15" y1="9" x2="15.01" y2="9"/>
+                </svg>
+                <div id="emojiPicker" class="emoji-picker">
+                  <span onclick="insertEmoji('😊')">😊</span>
+                  <span onclick="insertEmoji('😂')">😂</span>
+                  <span onclick="insertEmoji('👍')">👍</span>
+                  <span onclick="insertEmoji('❤️')">❤️</span>
+                  <span onclick="insertEmoji('🎉')">🎉</span>
+                  <span onclick="insertEmoji('🔥')">🔥</span>
+                  <span onclick="insertEmoji('💡')">💡</span>
+                  <span onclick="insertEmoji('✅')">✅</span>
+                  <span onclick="insertEmoji('❌')">❌</span>
+                  <span onclick="insertEmoji('⭐')">⭐</span>
+                  <span onclick="insertEmoji('📚')">📚</span>
+                  <span onclick="insertEmoji('📝')">📝</span>
+                  <span onclick="insertEmoji('🎯')">🎯</span>
+                  <span onclick="insertEmoji('🚀')">🚀</span>
+                  <span onclick="insertEmoji('💻')">💻</span>
+                  <span onclick="insertEmoji('🌟')">🌟</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="chat-tools">
+              <label class="chat-tool" for="imageUpload">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="3" y="3" width="18" height="18" rx="2"/>
+                  <circle cx="8.5" cy="8.5" r="1.5"/>
+                  <path d="M21 15l-5-5L5 21"/>
+                </svg>
+                <span>Image</span>
+              </label>
+              <input type="file" id="imageUpload" class="file-input" accept="image/*" onchange="handleImageUpload(event)">
+
+              <label class="chat-tool" for="audioUpload">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+                  <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+                  <line x1="12" y1="19" x2="12" y2="23"/>
+                  <line x1="8" y1="23" x2="16" y2="23"/>
+                </svg>
+                <span>Audio</span>
+              </label>
+              <input type="file" id="audioUpload" class="file-input" accept="audio/*" onchange="handleAudioUpload(event)">
+
+              <button class="chat-tool" onclick="sendChatMessage()" style="border: none; background: var(--primary); color: white;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <line x1="22" y1="2" x2="11" y2="13"/>
+                  <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+                </svg>
+                <span>Send</span>
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -608,13 +849,13 @@
       sessionToken: null,
       username: null,
       grades: [],
-      courses: [],
       assignments: [],
       posts: [],
-      chatHistory: []
+      chatHistory: [],
+      uploadedImages: []
     };
 
-    // Demo data (for standalone mode without server)
+    // Demo data
     const demoData = {
       grades: [
         { courseName: 'AP Calculus BC', teacher: 'Dr. Smith', percentage: 94, letterGrade: 'A', period: 1,
@@ -640,30 +881,75 @@
       ],
       posts: [
         { author: 'Dr. Smith', timestamp: '2026-05-22T10:30:00Z',
-          content: 'Reminder: The Calculus Chapter 7 test has been moved to May 25. Please review integration techniques.' },
+          content: 'Reminder: The Calculus Chapter 7 test has been moved to May 25.' },
         { author: 'Ms. Johnson', timestamp: '2026-05-22T09:15:00Z',
-          content: 'Great work on the practice essays everyone! Your thesis statements have improved significantly.' },
+          content: 'Great work on the practice essays everyone!' },
         { author: 'Mr. Williams', timestamp: '2026-05-21T14:45:00Z',
-          content: 'Lab reports due Friday. Make sure to include error analysis and proper significant figures.' }
+          content: 'Lab reports due Friday. Include error analysis and proper significant figures.' }
       ]
     };
 
-    // Load demo data
     function loadDemoData() {
       state.grades = demoData.grades;
       state.assignments = demoData.assignments;
       state.posts = demoData.posts;
-      state.courses = demoData.grades.map(g => ({
-        name: g.courseName,
-        teacher: g.teacher,
-        period: g.period
-      }));
     }
 
-    // Password verification using hash comparison
+    // Configure marked for markdown rendering
+    marked.setOptions({
+      breaks: true,
+      gfm: true,
+      headerIds: false,
+      mangle: false
+    });
+
+    // Custom renderer for code blocks with copy button
+    const renderer = new marked.Renderer();
+    renderer.code = function(code, language) {
+      const lang = language || 'plaintext';
+      return `<div class="code-block">
+        <button class="copy-btn" onclick="copyCode(this, \`${escapeForJS(code)}\`)">Copy</button>
+        <pre><code class="language-${lang}">${escapeHtml(code)}</code></pre>
+      </div>`;
+    };
+
+    renderer.codespan = function(code) {
+      return `<code>${escapeHtml(code)}</code>`;
+    };
+
+    marked.use({ renderer });
+
+    // Render markdown with LaTeX support
+    function renderMarkdown(text) {
+      // Process LaTeX block math first ($$...$$)
+      text = text.replace(/\$\$([\s\S]*?)\$\$/g, (match, math) => {
+        try {
+          return katex.renderToString(math, { displayMode: true, throwOnError: false });
+        } catch (e) {
+          return `<pre>${escapeHtml(math)}</pre>`;
+        }
+      });
+
+      // Process inline math ($...$)
+      text = text.replace(/\$([^\$\n]+?)\$/g, (match, math) => {
+        try {
+          return katex.renderToString(math, { displayMode: false, throwOnError: false });
+        } catch (e) {
+          return `$${escapeHtml(math)}$`;
+        }
+      });
+
+      // Render markdown
+      return marked.parse(text);
+    }
+
+    function escapeForJS(str) {
+      return str.replace(/\\/g, '\\\\').replace(/`/g, '\\`').replace(/\$/g, '\\$');
+    }
+
+    // Password verification
     const AgentPassword = (function() {
       const storedHash = 'c8e9b0a3f1d4e6c7b2a9f0d3e5c7b8a1f0d2e4c6b8a0f2d4e6c8b0a2f4';
-
       function hash(input) {
         let h = 0;
         for (let i = 0; i < input.length; i++) {
@@ -675,12 +961,7 @@
         }
         return result.substring(0, 64);
       }
-
-      return {
-        verify: function(pwd) {
-          return hash(pwd) === storedHash;
-        }
-      };
+      return { verify: function(pwd) { return hash(pwd) === storedHash; } };
     })();
 
     // Auth handlers
@@ -692,28 +973,21 @@
 
     function handleAuthSubmit(e) {
       if (e) e.preventDefault();
-
       const username = document.getElementById('authUsername').value;
       const password = document.getElementById('authPassword').value;
-
       if (!AgentPassword.verify(password)) {
-        alert('Invalid password. Use the agent password to access.');
+        showNotification('Invalid password', 'error');
         return;
       }
-
       state.authenticated = true;
       state.username = username;
       state.sessionToken = generateToken();
-
       sessionStorage.setItem('schoology_session', JSON.stringify({
-        username: username,
-        token: state.sessionToken,
-        timestamp: Date.now()
+        username, token: state.sessionToken, timestamp: Date.now()
       }));
-
       document.getElementById('authPanel').classList.remove('visible');
       updateAuthUI();
-      showNotification('Signed in successfully');
+      showNotification('Signed in successfully', 'success');
     }
 
     function handleLogout(e) {
@@ -723,25 +997,20 @@
       state.username = null;
       sessionStorage.removeItem('schoology_session');
       updateAuthUI();
-      showNotification('Signed out');
     }
 
     function updateAuthUI() {
       const badge = document.getElementById('userBadge');
-      const aiTab = document.getElementById('aiTab');
       const aiContent = document.getElementById('aiContent');
       const aiSignin = document.getElementById('aiSignin');
-
       if (state.authenticated) {
         badge.style.display = 'flex';
         document.getElementById('userAvatar').textContent = state.username.charAt(0).toUpperCase();
         document.getElementById('userName').textContent = state.username;
-        aiTab.style.color = 'var(--text)';
         aiContent.classList.add('visible');
         aiSignin.style.display = 'none';
       } else {
         badge.style.display = 'none';
-        aiTab.style.color = 'var(--text-secondary)';
         aiContent.classList.remove('visible');
         aiSignin.style.display = 'block';
       }
@@ -779,21 +1048,17 @@
           showAuthPanel(null);
           return;
         }
-
         document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
         document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-
         tab.classList.add('active');
         document.getElementById('tab-' + tab.dataset.tab).classList.add('active');
+        if (tab.dataset.tab === 'grades') renderGradesList();
+        if (tab.dataset.tab === 'assignments') renderAssignmentsList();
+        if (tab.dataset.tab === 'activity') renderActivityList();
       });
     });
 
     // Render functions
-    function renderOverview() {
-      renderGradesOverview();
-      renderAssignmentsOverview();
-    }
-
     function renderGradesOverview() {
       const container = document.getElementById('gradesOverview');
       container.innerHTML = state.grades.slice(0, 4).map(g => `
@@ -803,16 +1068,10 @@
             <span class="grade-value grade-${getGradeClass(g.percentage)}">${g.percentage}%</span>
           </div>
           <div class="grade-details">
-            <div class="detail-row">
-              <span class="detail-label">Letter Grade</span>
-              <span>${g.letterGrade}</span>
-            </div>
-            ${g.categoryGrades ? Object.entries(g.categoryGrades).map(([cat, grade]) => `
-              <div class="detail-row">
-                <span class="detail-label">${escapeHtml(cat)}</span>
-                <span>${grade}%</span>
-              </div>
-            `).join('') : ''}
+            <div class="detail-row"><span class="detail-label">Letter Grade</span><span>${g.letterGrade}</span></div>
+            ${g.categoryGrades ? Object.entries(g.categoryGrades).map(([cat, grade]) =>
+              `<div class="detail-row"><span class="detail-label">${escapeHtml(cat)}</span><span>${grade}%</span></div>`
+            ).join('') : ''}
           </div>
         </div>
       `).join('');
@@ -841,16 +1100,10 @@
             <span class="grade-value grade-${getGradeClass(g.percentage)}">${g.percentage}%</span>
           </div>
           <div class="grade-details">
-            <div class="detail-row">
-              <span class="detail-label">Letter Grade</span>
-              <span>${g.letterGrade}</span>
-            </div>
-            ${g.categoryGrades ? Object.entries(g.categoryGrades).map(([cat, grade]) => `
-              <div class="detail-row">
-                <span class="detail-label">${escapeHtml(cat)}</span>
-                <span>${grade}%</span>
-              </div>
-            `).join('') : ''}
+            <div class="detail-row"><span class="detail-label">Letter Grade</span><span>${g.letterGrade}</span></div>
+            ${g.categoryGrades ? Object.entries(g.categoryGrades).map(([cat, grade]) =>
+              `<div class="detail-row"><span class="detail-label">${escapeHtml(cat)}</span><span>${grade}%</span></div>`
+            ).join('') : ''}
           </div>
         </div>
       `).join('');
@@ -889,15 +1142,8 @@
       `).join('');
     }
 
-    // AI Chat
-    function handleChatKeydown(e) {
-      if (e.key === 'Enter' && !e.shiftKey) {
-        e.preventDefault();
-        sendChatMessage();
-      }
-    }
-
-    function sendChatMessage() {
+    // AI Chat with Web Search, Wikipedia, etc.
+    async function sendChatMessage() {
       if (!state.authenticated) {
         showAuthPanel(null);
         return;
@@ -905,44 +1151,139 @@
 
       const input = document.getElementById('chatInput');
       const message = input.value.trim();
-      if (!message) return;
+      if (!message && state.uploadedImages.length === 0) return;
 
       const workerUrl = localStorage.getItem('schoology-ai-worker-url');
-      if (!workerUrl) {
-        addChatMessage('error', 'Please configure your AI Worker URL in settings first.');
-        return;
-      }
-
       const model = document.getElementById('modelSelect').value;
 
-      addChatMessage('user', message);
-      state.chatHistory.push({ role: 'user', content: message });
+      // Build user message with images
+      let fullMessage = message;
+      if (state.uploadedImages.length > 0) {
+        fullMessage += '\n\n[Images attached - using OCR to extract text]';
+      }
+
+      addChatMessage('user', message || '[Image uploaded]');
+      state.chatHistory.push({ role: 'user', content: fullMessage });
       input.value = '';
+      clearImagePreviews();
 
       showTypingIndicator();
 
-      fetch(`${workerUrl}/v1/chat`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          model: model,
-          messages: buildContextMessages(message),
-          max_tokens: 4096,
-          temperature: 0.7
-        })
-      }).then(res => res.json()).then(data => {
+      try {
+        const response = await fetch(`${workerUrl}/v1/chat`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            model: model,
+            messages: buildContextMessages(fullMessage),
+            max_tokens: 4096,
+            temperature: 0.7
+          })
+        });
+
         hideTypingIndicator();
+
+        if (!response.ok) {
+          const err = await response.json().catch(() => ({ message: 'Unknown error' }));
+          addChatMessage('error', `Error: ${err.error?.message || err.message || 'Failed to get response'}`);
+          return;
+        }
+
+        const data = await response.json();
         const reply = data.choices?.[0]?.message?.content || 'No response received.';
+
         addChatMessage('assistant', reply);
         state.chatHistory.push({ role: 'assistant', content: reply });
-      }).catch(e => {
+
+        // Handle AI commands
+        handleAICommands(reply);
+
+      } catch (e) {
         hideTypingIndicator();
-        addChatMessage('error', `Error: ${e.message}`);
-      });
+        addChatMessage('error', `Network error: ${e.message}`);
+      }
+    }
+
+    function handleAICommands(responseText) {
+      // Check for notification command: [NOTIFY:text]
+      const notifyMatch = responseText.match(/\[NOTIFY:([^\]]+)\]/g);
+      if (notifyMatch) {
+        notifyMatch.forEach(match => {
+          const text = match.replace('[NOTIFY:', '').replace(']', '');
+          showNotification(text, 'info');
+        });
+        responseText = responseText.replace(/\[NOTIFY:[^\]]+\]/g, '');
+      }
+
+      // Check for search command: [SEARCH:query]
+      const searchMatch = responseText.match(/\[SEARCH:([^\]]+)\]/g);
+      if (searchMatch) {
+        searchMatch.forEach(async match => {
+          const query = match.replace('[SEARCH:', '').replace(']', '');
+          await performWebSearch(query);
+        });
+        responseText = responseText.replace(/\[SEARCH:[^\]]+\]/g, '');
+      }
+
+      // Check for Wikipedia command: [WIKI:topic]
+      const wikiMatch = responseText.match(/\[WIKI:([^\]]+)\]/g);
+      if (wikiMatch) {
+        wikiMatch.forEach(async match => {
+          const topic = match.replace('[WIKI:', '').replace(']', '');
+          await searchWikipedia(topic);
+        });
+        responseText = responseText.replace(/\[WIKI:[^\]]+\]/g, '');
+      }
+
+      // Check for time command: [TIME]
+      if (responseText.includes('[TIME]')) {
+        const now = new Date();
+        showNotification(`Current time: ${now.toLocaleTimeString()}`, 'info');
+        responseText = responseText.replace(/\[TIME\]/g, '');
+      }
+
+      // Check for weather command: [WEATHER]
+      if (responseText.includes('[WEATHER]')) {
+        // Would integrate with weather API
+        responseText = responseText.replace(/\[WEATHER\]/g, '');
+      }
+    }
+
+    async function performWebSearch(query) {
+      try {
+        const response = await fetch(`https://api.duckduckgo.com/?q=${encodeURIComponent(query)}&format=json&no_html=1`);
+        const data = await response.json();
+        if (data.AbstractText) {
+          addChatMessage('assistant', `**Web Search: ${query}**\n\n${data.AbstractText}`);
+        }
+      } catch (e) {
+        console.error('Search failed:', e);
+      }
+    }
+
+    async function searchWikipedia(topic) {
+      try {
+        const response = await fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(topic)}`);
+        const data = await response.json();
+        if (data.extract) {
+          addChatMessage('assistant', `**Wikipedia: ${data.title}**\n\n${data.extract}\n\n${data.content_urls?.desktop?.page || ''}`);
+        }
+      } catch (e) {
+        console.error('Wikipedia lookup failed:', e);
+      }
     }
 
     function buildContextMessages(currentMessage) {
-      const systemPrompt = `You are an AI assistant for a student dashboard. Current data:
+      const now = new Date();
+      const systemPrompt = `You are an AI assistant for a student dashboard. You can:
+- Use markdown formatting including headers, lists, tables, code blocks, blockquotes
+- Write LaTeX math with $$ for block and $ for inline: $$\\frac{a}{b}$ or $\\sqrt{x}$
+- Use emoji: 🎉 ✅ ❌ 💡 📚
+- Send notifications with [NOTIFY:text] (short text only)
+- Search the web with [SEARCH:query]
+- Look up Wikipedia with [WIKI:topic]
+- Know the current time: ${now.toLocaleString()}
+- Access student data:
 
 Grades:
 ${state.grades.map(g => `- ${g.courseName}: ${g.percentage}% (${g.letterGrade})`).join('\n')}
@@ -964,7 +1305,14 @@ ${state.posts.map(p => `- ${p.author}: ${p.content.substring(0, 100)}...`).join(
       const container = document.getElementById('chatMessages');
       const div = document.createElement('div');
       div.className = `chat-message ${type}`;
-      div.textContent = content;
+
+      if (type === 'assistant') {
+        const rendered = renderMarkdown(content);
+        div.innerHTML = `<div class="markdown-content">${rendered}</div>`;
+      } else {
+        div.textContent = content;
+      }
+
       container.appendChild(div);
       container.scrollTop = container.scrollHeight;
     }
@@ -982,6 +1330,146 @@ ${state.posts.map(p => `- ${p.author}: ${p.content.substring(0, 100)}...`).join(
     function hideTypingIndicator() {
       const indicator = document.getElementById('typingIndicator');
       if (indicator) indicator.remove();
+    }
+
+    function handleChatKeydown(e) {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendChatMessage();
+      }
+    }
+
+    // Emoji picker
+    function toggleEmojiPicker() {
+      document.getElementById('emojiPicker').classList.toggle('visible');
+    }
+
+    function insertEmoji(emoji) {
+      const input = document.getElementById('chatInput');
+      input.value += emoji;
+      input.focus();
+      toggleEmojiPicker();
+    }
+
+    // Image upload with OCR
+    async function handleImageUpload(event) {
+      const files = event.target.files;
+      if (!files.length) return;
+
+      const container = document.getElementById('imagePreviewContainer');
+      container.style.display = 'flex';
+      container.innerHTML = '';
+      state.uploadedImages = [];
+
+      for (const file of files) {
+        const reader = new FileReader();
+        reader.onload = async (e) => {
+          const imgData = e.target.result;
+
+          // Show preview
+          const preview = document.createElement('div');
+          preview.className = 'image-preview-item';
+          preview.innerHTML = `
+            <img src="${imgData}" alt="Uploaded">
+            <button class="remove-btn" onclick="removeImage(this, '${file.name}')">×</button>
+          `;
+          container.appendChild(preview);
+
+          // Run OCR
+          const progress = document.getElementById('ocrProgress');
+          progress.style.display = 'block';
+          progress.textContent = `Extracting text from ${file.name}...`;
+
+          try {
+            const result = await Tesseract.recognize(imgData, 'eng', {
+              logger: m => {
+                if (m.status === 'recognizing text') {
+                  progress.textContent = `Processing ${file.name}... ${Math.round(m.progress * 100)}%`;
+                }
+              }
+            });
+
+            state.uploadedImages.push({
+              name: file.name,
+              text: result.data.text
+            });
+
+            progress.textContent = `Extracted text from ${file.name}`;
+
+            // Add extracted text to chat
+            if (result.data.text.trim()) {
+              showNotification(`Text extracted from ${file.name}`, 'success');
+            }
+          } catch (err) {
+            progress.textContent = `Failed to extract text from ${file.name}`;
+          }
+
+          if (container.children.length === files.length) {
+            setTimeout(() => { progress.style.display = 'none'; }, 2000);
+          }
+        };
+        reader.readAsDataURL(file);
+      }
+
+      event.target.value = '';
+    }
+
+    function removeImage(btn, name) {
+      btn.parentElement.remove();
+      state.uploadedImages = state.uploadedImages.filter(img => img.name !== name);
+      const container = document.getElementById('imagePreviewContainer');
+      if (container.children.length === 0) {
+        container.style.display = 'none';
+      }
+    }
+
+    function clearImagePreviews() {
+      state.uploadedImages = [];
+      const container = document.getElementById('imagePreviewContainer');
+      container.innerHTML = '';
+      container.style.display = 'none';
+    }
+
+    // Audio upload with transcription
+    async function handleAudioUpload(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const progress = document.getElementById('ocrProgress');
+      progress.style.display = 'block';
+      progress.textContent = `Transcribing ${file.name}... (This may take a moment)`;
+
+      // For audio transcription, we would typically use a service like
+      // Whisper API or AssemblyAI. For demo, we'll show a placeholder.
+      // In production, you'd integrate with an actual transcription service.
+
+      setTimeout(() => {
+        progress.style.display = 'none';
+        showNotification('Audio transcription would require a speech-to-text API integration', 'info');
+      }, 2000);
+
+      event.target.value = '';
+    }
+
+    // Copy code function
+    function copyCode(btn, code) {
+      navigator.clipboard.writeText(code).then(() => {
+        btn.textContent = 'Copied!';
+        btn.classList.add('copied');
+        setTimeout(() => {
+          btn.textContent = 'Copy';
+          btn.classList.remove('copied');
+        }, 2000);
+      });
+    }
+
+    // Notifications
+    function showNotification(message, type = 'info') {
+      const notification = document.createElement('div');
+      notification.className = `notification ${type}`;
+      notification.textContent = message;
+      document.body.appendChild(notification);
+      setTimeout(() => notification.remove(), 4000);
     }
 
     // Helpers
@@ -1036,56 +1524,34 @@ ${state.posts.map(p => `- ${p.author}: ${p.content.substring(0, 100)}...`).join(
       return date.toLocaleDateString();
     }
 
-    function showNotification(message) {
-      const notification = document.createElement('div');
-      notification.style.cssText = `
-        position: fixed;
-        bottom: 20px;
-        left: 50%;
-        transform: translateX(-50%);
-        padding: 12px 24px;
-        background: var(--text);
-        color: white;
-        border-radius: 8px;
-        font-size: 0.9rem;
-        z-index: 1000;
-        animation: fadeIn 0.3s ease;
-      `;
-      notification.textContent = message;
-      document.body.appendChild(notification);
-      setTimeout(() => notification.remove(), 3000);
-    }
-
-    // Update status bar
     function updateStatus(status) {
       const dot = document.getElementById('statusDot');
       const text = document.getElementById('statusText');
       dot.className = 'status-dot';
       if (status === 'ok') {
         dot.classList.add('ok');
-        text.textContent = 'Using demo data (configure server for live data)';
+        text.textContent = 'Demo mode - configure server for live data';
       } else {
         dot.classList.add('error');
-        text.textContent = 'Demo mode - configure server for live data';
+        text.textContent = 'Demo mode';
       }
     }
 
     // Initialize
     loadDemoData();
     checkSession();
-    renderOverview();
+    renderGradesOverview();
+    renderAssignmentsOverview();
     renderGradesList();
     renderAssignmentsList();
     renderActivityList();
     updateStatus('ok');
 
-    // Tab switch handlers for rendering
-    document.querySelectorAll('.nav-tab').forEach(tab => {
-      tab.addEventListener('click', () => {
-        if (tab.dataset.tab === 'grades') renderGradesList();
-        if (tab.dataset.tab === 'assignments') renderAssignmentsList();
-        if (tab.dataset.tab === 'activity') renderActivityList();
-      });
+    // Close emoji picker when clicking outside
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('.emoji-btn')) {
+        document.getElementById('emojiPicker').classList.remove('visible');
+      }
     });
   </script>
 </body>
