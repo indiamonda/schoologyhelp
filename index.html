@@ -4,309 +4,287 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Schoology Help</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Didact+Gothic&display=swap" rel="stylesheet">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
     :root {
-      --bg-dark: #1a1a2e;
-      --bg-card: #16213e;
-      --primary: #e94560;
-      --secondary: #0f3460;
-      --text: #eaeaea;
-      --text-muted: #a0a0a0;
-      --success: #4ade80;
-      --warning: #fbbf24;
+      --bg: #f5f5f7;
+      --surface: #ffffff;
+      --border: #d1d1d6;
+      --text: #1d1d1f;
+      --text-secondary: #86868b;
+      --primary: #0071e3;
+      --success: #34c759;
+      --warning: #ff9500;
+      --error: #ff3b30;
     }
 
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background: var(--bg-dark);
+      font-family: 'Didact Gothic', sans-serif;
+      background: var(--bg);
       color: var(--text);
+      line-height: 1.5;
       min-height: 100vh;
     }
 
-    .container { max-width: 1400px; margin: 0 auto; padding: 20px; }
+    .container { max-width: 900px; margin: 0 auto; padding: 40px 20px; }
 
     header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 20px 0;
-      border-bottom: 1px solid var(--secondary);
-      margin-bottom: 30px;
+      margin-bottom: 40px;
     }
 
-    h1 { font-size: 1.8rem; color: var(--primary); }
-    h2 { font-size: 1.2rem; margin-bottom: 15px; color: var(--text); }
-
-    .status {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 0.9rem;
-    }
-
-    .status-dot {
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      background: var(--text-muted);
-    }
-
-    .status-dot.connected { background: var(--success); }
-    .status-dot.error { background: var(--primary); }
-
-    nav {
-      display: flex;
-      gap: 5px;
-      margin-bottom: 25px;
-      flex-wrap: wrap;
-    }
-
-    nav button {
-      padding: 10px 20px;
-      background: var(--bg-card);
-      border: 1px solid var(--secondary);
-      color: var(--text);
-      border-radius: 8px;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-
-    nav button:hover { border-color: var(--primary); }
-    nav button.active { background: var(--primary); border-color: var(--primary); }
-    nav button:disabled { opacity: 0.4; cursor: not-allowed; }
-
-    .card {
-      background: var(--bg-card);
-      border-radius: 12px;
-      padding: 20px;
-      margin-bottom: 20px;
-      border: 1px solid var(--secondary);
-    }
-
-    .card-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 15px;
-    }
-
-    .grade-value {
+    h1 {
       font-size: 2rem;
-      font-weight: bold;
-    }
-
-    .grade-a { color: var(--success); }
-    .grade-b { color: #22d3ee; }
-    .grade-c { color: var(--warning); }
-    .grade-f { color: var(--primary); }
-
-    .course-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-      gap: 20px;
-    }
-
-    .course-card {
-      background: var(--bg-card);
-      border-radius: 12px;
-      padding: 20px;
-      border: 1px solid var(--secondary);
-    }
-
-    .course-card h3 { margin-bottom: 10px; font-size: 1.1rem; }
-    .course-card .teacher { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 15px; }
-    .course-card .grade { font-size: 1.5rem; font-weight: bold; }
-
-    .assignment-list { display: flex; flex-direction: column; gap: 12px; }
-    .assignment-item {
-      background: var(--bg-card);
-      border-radius: 8px;
-      padding: 15px;
-      border: 1px solid var(--secondary);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .assignment-item .due { color: var(--text-muted); font-size: 0.85rem; }
-    .assignment-item.overdue .due { color: var(--primary); }
-    .assignment-item.upcoming .due { color: var(--warning); }
-
-    .post-item {
-      background: var(--bg-card);
-      border-radius: 8px;
-      padding: 15px;
-      border: 1px solid var(--secondary);
-      margin-bottom: 12px;
-    }
-
-    .post-item .author { color: var(--primary); font-weight: 500; margin-bottom: 5px; }
-    .post-item .time { color: var(--text-muted); font-size: 0.8rem; margin-bottom: 8px; }
-    .post-item .content { line-height: 1.5; }
-
-    .loading { text-align: center; padding: 40px; color: var(--text-muted); }
-    .error { background: rgba(233, 69, 96, 0.1); border: 1px solid var(--primary); border-radius: 8px; padding: 15px; margin-bottom: 20px; }
-
-    .config-panel {
-      background: var(--bg-card);
-      border-radius: 12px;
-      padding: 25px;
-      border: 1px solid var(--secondary);
-    }
-
-    .config-panel label {
-      display: block;
-      margin-bottom: 5px;
-      color: var(--text-muted);
-      font-size: 0.9rem;
-    }
-
-    .config-panel input {
-      width: 100%;
-      padding: 10px 15px;
-      background: var(--bg-dark);
-      border: 1px solid var(--secondary);
-      border-radius: 8px;
+      font-weight: 600;
       color: var(--text);
-      font-size: 1rem;
-      margin-bottom: 15px;
+      margin-bottom: 8px;
     }
 
-    .config-panel input:focus {
-      outline: none;
-      border-color: var(--primary);
+    .subtitle {
+      color: var(--text-secondary);
+      font-size: 0.95rem;
     }
 
-    .btn {
-      padding: 10px 20px;
-      background: var(--primary);
-      border: none;
-      border-radius: 8px;
-      color: white;
-      cursor: pointer;
-      font-size: 1rem;
-      transition: opacity 0.2s;
-    }
-
-    .btn:hover { opacity: 0.9; }
-    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
-
-    .btn-secondary {
-      background: var(--secondary);
-    }
-
-    .settings-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-      gap: 20px;
+    /* Section */
+    .section {
+      background: var(--surface);
+      border-radius: 12px;
+      padding: 24px;
       margin-bottom: 20px;
+      border: 1px solid var(--border);
     }
 
-    .refresh-time { color: var(--text-muted); font-size: 0.8rem; margin-top: 15px; }
-
-    .hidden { display: none; }
-
-    .section-view { display: none; }
-    .section-view.active { display: block; }
-
-    /* Login Styles */
-    .login-overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: rgba(0, 0, 0, 0.9);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 9999;
-    }
-
-    .login-box {
-      background: var(--bg-card);
-      border-radius: 16px;
-      padding: 40px;
-      width: 100%;
-      max-width: 420px;
-      border: 1px solid var(--secondary);
-      box-shadow: 0 20px 60px rgba(0,0,0,0.5);
-    }
-
-    .login-box h2 {
-      text-align: center;
-      margin-bottom: 30px;
-      font-size: 1.5rem;
-    }
-
-    .login-box input {
-      width: 100%;
-      padding: 14px 16px;
-      background: var(--bg-dark);
-      border: 1px solid var(--secondary);
-      border-radius: 8px;
-      color: var(--text);
-      font-size: 1rem;
-      margin-bottom: 20px;
-    }
-
-    .login-box input:focus {
-      outline: none;
-      border-color: var(--primary);
-    }
-
-    .login-box .btn {
-      width: 100%;
-      padding: 14px;
+    .section-title {
       font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 16px;
+      color: var(--text);
     }
 
-    .login-error {
-      background: rgba(233, 69, 96, 0.15);
-      border: 1px solid var(--primary);
-      border-radius: 8px;
-      padding: 12px;
+    /* Sign in panel - slides in from top */
+    .auth-panel {
+      background: var(--surface);
+      border-radius: 12px;
+      padding: 24px;
       margin-bottom: 20px;
-      color: var(--primary);
-      text-align: center;
+      border: 1px solid var(--border);
       display: none;
     }
 
-    .login-hint {
-      text-align: center;
-      color: var(--text-muted);
-      font-size: 0.85rem;
-      margin-top: 20px;
+    .auth-panel.visible {
+      display: block;
     }
 
-    /* AI Chat Styles */
+    .auth-panel h3 {
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 16px;
+    }
+
+    .auth-form {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      max-width: 400px;
+    }
+
+    .auth-form input {
+      padding: 12px 16px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 0.95rem;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    .auth-form input:focus {
+      outline: none;
+      border-color: var(--primary);
+    }
+
+    .auth-form a {
+      color: var(--primary);
+      text-decoration: none;
+      font-size: 0.9rem;
+      padding: 12px 16px;
+      text-align: center;
+      border: 1px solid var(--primary);
+      border-radius: 8px;
+      transition: background 0.2s;
+    }
+
+    .auth-form a:hover {
+      background: rgba(0, 113, 227, 0.05);
+    }
+
+    /* Grade cards - clickable */
+    .grade-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 12px;
+      cursor: pointer;
+      transition: box-shadow 0.2s, border-color 0.2s;
+    }
+
+    .grade-card:hover {
+      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+      border-color: var(--primary);
+    }
+
+    .grade-card.expanded {
+      border-color: var(--primary);
+    }
+
+    .grade-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .course-name {
+      font-weight: 500;
+      font-size: 1rem;
+    }
+
+    .grade-value {
+      font-size: 1.25rem;
+      font-weight: 600;
+    }
+
+    .grade-a { color: var(--success); }
+    .grade-b { color: var(--primary); }
+    .grade-c { color: var(--warning); }
+    .grade-f { color: var(--error); }
+
+    .grade-details {
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border);
+      display: none;
+    }
+
+    .grade-card.expanded .grade-details {
+      display: block;
+    }
+
+    .detail-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      font-size: 0.9rem;
+    }
+
+    .detail-label {
+      color: var(--text-secondary);
+    }
+
+    /* Assignment list */
+    .assignment-item {
+      padding: 16px 0;
+      border-bottom: 1px solid var(--border);
+      cursor: pointer;
+    }
+
+    .assignment-item:last-child {
+      border-bottom: none;
+    }
+
+    .assignment-item:hover {
+      background: rgba(0,113,227,0.02);
+      margin: 0 -12px;
+      padding: 16px 12px;
+    }
+
+    .assignment-title {
+      font-weight: 500;
+      margin-bottom: 4px;
+    }
+
+    .assignment-meta {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+    }
+
+    .assignment-due {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+    }
+
+    .assignment-due.overdue {
+      color: var(--error);
+    }
+
+    .assignment-due.soon {
+      color: var(--warning);
+    }
+
+    /* Post list */
+    .post-item {
+      padding: 16px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .post-item:last-child {
+      border-bottom: none;
+    }
+
+    .post-author {
+      font-weight: 500;
+      margin-bottom: 4px;
+    }
+
+    .post-time {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      margin-bottom: 8px;
+    }
+
+    .post-content {
+      font-size: 0.95rem;
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    /* AI Chat section */
+    .ai-section {
+      display: none;
+    }
+
+    .ai-section.visible {
+      display: block;
+    }
+
     .ai-container {
       display: flex;
       flex-direction: column;
-      height: 500px;
+      height: 400px;
     }
 
     .chat-messages {
       flex: 1;
       overflow-y: auto;
-      padding: 15px;
-      background: var(--bg-dark);
+      padding: 16px;
+      background: var(--bg);
       border-radius: 8px;
-      margin-bottom: 15px;
+      margin-bottom: 16px;
       display: flex;
       flex-direction: column;
-      gap: 15px;
+      gap: 12px;
     }
 
     .chat-message {
       padding: 12px 16px;
-      border-radius: 12px;
+      border-radius: 16px;
       max-width: 85%;
       line-height: 1.5;
       white-space: pre-wrap;
       word-wrap: break-word;
+      font-size: 0.95rem;
     }
 
     .chat-message.user {
@@ -317,65 +295,61 @@
     }
 
     .chat-message.assistant {
-      background: var(--secondary);
+      background: #e5e5ea;
+      color: var(--text);
       align-self: flex-start;
       border-bottom-left-radius: 4px;
     }
 
     .chat-message.error {
-      background: rgba(233, 69, 96, 0.2);
-      border: 1px solid var(--primary);
-      color: var(--primary);
+      background: rgba(255,59,48,0.1);
+      color: var(--error);
     }
 
     .chat-input-area {
       display: flex;
-      gap: 10px;
-      margin-bottom: 10px;
+      gap: 12px;
     }
 
-    .chat-input-area textarea {
+    .chat-input-area input {
       flex: 1;
-      padding: 12px 15px;
-      background: var(--bg-dark);
-      border: 1px solid var(--secondary);
-      border-radius: 8px;
-      color: var(--text);
+      padding: 14px 18px;
+      border: 1px solid var(--border);
+      border-radius: 24px;
       font-size: 1rem;
-      font-family: inherit;
-      resize: none;
-      min-height: 48px;
-      max-height: 150px;
+      background: var(--surface);
     }
 
-    .chat-input-area textarea:focus {
+    .chat-input-area input:focus {
       outline: none;
       border-color: var(--primary);
     }
 
-    .ai-model-select {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      color: var(--text-muted);
-      font-size: 0.9rem;
-    }
-
-    .ai-model-select select {
-      padding: 6px 12px;
-      background: var(--bg-dark);
-      border: 1px solid var(--secondary);
+    /* Model selector */
+    .model-select {
+      padding: 8px 12px;
+      border: 1px solid var(--border);
       border-radius: 6px;
+      font-size: 0.85rem;
+      background: var(--surface);
       color: var(--text);
       cursor: pointer;
     }
 
+    .ai-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    /* Typing indicator */
     .typing-indicator {
       display: flex;
       gap: 4px;
       padding: 12px 16px;
-      background: var(--secondary);
-      border-radius: 12px;
+      background: #e5e5ea;
+      border-radius: 16px;
       align-self: flex-start;
       border-bottom-left-radius: 4px;
     }
@@ -383,7 +357,7 @@
     .typing-indicator span {
       width: 8px;
       height: 8px;
-      background: var(--text-muted);
+      background: var(--text-secondary);
       border-radius: 50%;
       animation: bounce 1.4s infinite ease-in-out;
     }
@@ -397,361 +371,392 @@
       40% { transform: translateY(-6px); }
     }
 
-    .context-hint {
-      background: rgba(74, 222, 128, 0.1);
-      border: 1px solid var(--success);
+    /* Navigation tabs */
+    .nav-tabs {
+      display: flex;
+      gap: 4px;
+      margin-bottom: 24px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+    }
+
+    .nav-tab {
+      padding: 10px 18px;
       border-radius: 8px;
-      padding: 10px 15px;
-      margin-bottom: 10px;
-      font-size: 0.85rem;
-      color: var(--success);
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background 0.2s, color 0.2s;
     }
 
-    .auth-required {
+    .nav-tab:hover {
+      background: rgba(0,113,227,0.08);
+      color: var(--primary);
+    }
+
+    .nav-tab.active {
+      background: var(--primary);
+      color: white;
+    }
+
+    /* Tab content */
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    /* Sign in link for AI */
+    .ai-signin {
       text-align: center;
-      padding: 60px 40px;
+      padding: 60px 20px;
     }
 
-    .auth-required h3 {
-      margin-bottom: 15px;
-      color: var(--text);
+    .ai-signin p {
+      color: var(--text-secondary);
+      margin-bottom: 16px;
     }
 
-    .auth-required p {
-      color: var(--text-muted);
-      margin-bottom: 25px;
+    .ai-signin a {
+      color: var(--primary);
+      text-decoration: none;
+      font-weight: 500;
     }
 
-    .auth-required .btn {
-      padding: 12px 30px;
+    .ai-signin a:hover {
+      text-decoration: underline;
     }
 
-    @media (max-width: 768px) {
-      .container { padding: 15px; }
-      header { flex-direction: column; gap: 15px; }
-      nav { gap: 3px; }
-      nav button { padding: 8px 12px; font-size: 0.9rem; }
-      .login-box { padding: 25px; margin: 15px; }
+    /* User badge */
+    .user-badge {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+    }
+
+    .user-badge .avatar {
+      width: 28px;
+      height: 28px;
+      background: var(--primary);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 0.8rem;
+      font-weight: 500;
+    }
+
+    .user-badge a {
+      color: var(--error);
+      text-decoration: none;
+      margin-left: 8px;
+    }
+
+    .user-badge a:hover {
+      text-decoration: underline;
+    }
+
+    /* Status indicator */
+    .status {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      margin-top: 16px;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--text-secondary);
+    }
+
+    .status-dot.ok { background: var(--success); }
+    .status-dot.error { background: var(--error); }
+
+    /* Empty state */
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--text-secondary);
+    }
+
+    /* Responsive */
+    @media (max-width: 600px) {
+      .container { padding: 20px 16px; }
+      h1 { font-size: 1.6rem; }
+      .section { padding: 16px; }
+      .nav-tab { padding: 8px 12px; font-size: 0.85rem; }
     }
   </style>
 </head>
 <body>
-  <!-- Login Overlay -->
-  <div id="loginOverlay" class="login-overlay">
-    <div class="login-box">
-      <h2>Sign in to Schoology MCP</h2>
-      <div id="loginError" class="login-error">Invalid credentials</div>
-      <form id="loginForm" onsubmit="handleLogin(event)">
-        <input type="text" id="loginUsername" placeholder="Username (Student ID)" required>
-        <input type="password" id="loginPassword" placeholder="Password" required>
-        <button type="submit" class="btn">Sign In</button>
-      </form>
-      <p class="login-hint">Your credentials are used to authenticate with Schoology via the MCP server.</p>
-    </div>
-  </div>
-
   <div class="container">
     <header>
-      <h1>Schoology MCP</h1>
-      <div class="status">
+      <h1>Schoology Help</h1>
+      <p class="subtitle" id="subtitle">View your grades, assignments, and recent activity</p>
+
+      <div class="user-badge" id="userBadge" style="display: none;">
+        <div class="avatar" id="userAvatar">?</div>
+        <span id="userName">Signed in</span>
+        <a href="#" onclick="handleLogout(event)">Sign out</a>
+      </div>
+
+      <div class="status" id="statusBar">
         <div class="status-dot" id="statusDot"></div>
-        <span id="statusText">Disconnected</span>
+        <span id="statusText">Checking connection...</span>
       </div>
     </header>
 
-    <nav>
-      <button class="active" data-section="dashboard">Dashboard</button>
-      <button data-section="grades">Grades</button>
-      <button data-section="courses">Courses</button>
-      <button data-section="assignments">Assignments</button>
-      <button data-section="posts">Recent Posts</button>
-      <button data-section="ai" id="aiNavBtn" disabled>AI Assistant</button>
-      <button data-section="settings">Settings</button>
-      <button onclick="handleLogout()" id="logoutBtn" style="margin-left: auto; display: none;">Logout</button>
-    </nav>
+    <!-- Auth Panel (shows when signed in) -->
+    <div class="auth-panel" id="authPanel">
+      <h3>Sign in with your Schoology credentials</h3>
+      <form class="auth-form" onsubmit="handleAuthSubmit(event)">
+        <input type="text" id="authUsername" placeholder="Username or Student ID" required>
+        <input type="password" id="authPassword" placeholder="Password" required>
+        <a href="#" onclick="handleAuthSubmit(event)">Sign In</a>
+      </form>
+      <p style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 12px;">
+        Your password is used to authenticate with Schoology via MCP.
+      </p>
+    </div>
 
-    <main>
-      <!-- Dashboard Section -->
-      <div id="dashboard" class="section-view active">
-        <div id="dashboardContent">
-          <div class="loading">Loading dashboard...</div>
+    <!-- Navigation -->
+    <div class="nav-tabs">
+      <div class="nav-tab active" data-tab="overview">Overview</div>
+      <div class="nav-tab" data-tab="grades">Grades</div>
+      <div class="nav-tab" data-tab="assignments">Assignments</div>
+      <div class="nav-tab" data-tab="activity">Recent Activity</div>
+      <div class="nav-tab" data-tab="ai" id="aiTab">AI Assistant</div>
+    </div>
+
+    <!-- Overview Tab -->
+    <div class="tab-content active" id="tab-overview">
+      <div class="section">
+        <div class="section-title">Your Grades</div>
+        <div id="gradesOverview"></div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">Upcoming Assignments</div>
+        <div id="assignmentsOverview"></div>
+      </div>
+    </div>
+
+    <!-- Grades Tab -->
+    <div class="tab-content" id="tab-grades">
+      <div class="section">
+        <div class="section-title">All Grades</div>
+        <div id="gradesList"></div>
+      </div>
+    </div>
+
+    <!-- Assignments Tab -->
+    <div class="tab-content" id="tab-assignments">
+      <div class="section">
+        <div class="section-title">All Assignments</div>
+        <div id="assignmentsList"></div>
+      </div>
+    </div>
+
+    <!-- Activity Tab -->
+    <div class="tab-content" id="tab-activity">
+      <div class="section">
+        <div class="section-title">Recent Posts</div>
+        <div id="activityList"></div>
+      </div>
+    </div>
+
+    <!-- AI Assistant Tab -->
+    <div class="tab-content" id="tab-ai">
+      <div class="section ai-section" id="aiContent">
+        <div class="ai-header">
+          <div class="section-title" style="margin-bottom: 0;">AI Study Assistant</div>
+          <select class="model-select" id="modelSelect">
+            <option value="deepseek-chat">DeepSeek Chat</option>
+            <option value="deepseek-reasoner">DeepSeek Reasoner</option>
+          </select>
+        </div>
+
+        <div class="ai-container">
+          <div class="chat-messages" id="chatMessages"></div>
+          <div class="chat-input-area">
+            <input type="text" id="chatInput" placeholder="Ask about your grades, assignments, or courses..." onkeydown="handleChatKeydown(event)">
+          </div>
         </div>
       </div>
 
-      <!-- Grades Section -->
-      <div id="grades" class="section-view">
-        <div class="card">
-          <h2>Current Grades</h2>
-          <div id="gradesContent">
-            <div class="loading">Loading grades...</div>
-          </div>
-        </div>
+      <div class="section ai-signin" id="aiSignin">
+        <p>Sign in to access the AI Assistant</p>
+        <a href="#" onclick="showAuthPanel(event)">Sign in</a>
       </div>
-
-      <!-- Courses Section -->
-      <div id="courses" class="section-view">
-        <div class="card">
-          <h2>My Courses</h2>
-          <div id="coursesContent">
-            <div class="loading">Loading courses...</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Assignments Section -->
-      <div id="assignments" class="section-view">
-        <div class="card">
-          <h2>Upcoming Assignments</h2>
-          <div id="assignmentsContent">
-            <div class="loading">Loading assignments...</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Recent Posts Section -->
-      <div id="posts" class="section-view">
-        <div class="card">
-          <h2>Recent Activity</h2>
-          <div id="postsContent">
-            <div class="loading">Loading posts...</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- AI Assistant Section -->
-      <div id="ai" class="section-view">
-        <div class class="card">
-          <h2>AI Study Assistant</h2>
-          <div id="aiContent">
-            <div class="auth-required">
-              <h3>Authentication Required</h3>
-              <p>Please sign in with your Schoology credentials to access the AI Assistant.</p>
-              <button class="btn" onclick="showLogin()">Sign In</button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Settings Section -->
-      <div id="settings" class="section-view">
-        <div class="config-panel">
-          <h2>MCP Server Configuration</h2>
-          <div class="settings-grid">
-            <div>
-              <label>Server Host</label>
-              <input type="text" id="serverHost" value="localhost" placeholder="localhost">
-            </div>
-            <div>
-              <label>Server Port</label>
-              <input type="number" id="serverPort" value="8765" placeholder="8765">
-            </div>
-            <div>
-              <label>Schoology Username (Student ID)</label>
-              <input type="text" id="schoologyUsername" placeholder="12345678">
-            </div>
-            <div>
-              <label>Schoology Password</label>
-              <input type="password" id="schoologyPassword" placeholder="Your password">
-            </div>
-            <div>
-              <label>ClassLink URL</label>
-              <input type="text" id="classlinkUrl" value="https://launchpad.classlink.com/pausd" placeholder="https://launchpad.classlink.com/pausd">
-            </div>
-            <div>
-              <label>Schoology Base URL</label>
-              <input type="text" id="schoologyBaseUrl" value="https://pausd.schoology.com" placeholder="https://pausd.schoology.com">
-            </div>
-            <div>
-              <label>DeepSeek AI Proxy Worker URL</label>
-              <input type="text" id="aiWorkerUrl" placeholder="https://deepseek-proxy.xxx.workers.dev">
-            </div>
-          </div>
-          <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-            <button class="btn" onclick="saveSettings()">Save Settings</button>
-            <button class="btn btn-secondary" onclick="testConnection()">Test Connection</button>
-            <button class="btn btn-secondary" onclick="loadGrades()">Refresh Data</button>
-          </div>
-          <p class="refresh-time" id="lastRefresh">Last refresh: Never</p>
-        </div>
-
-        <div class="card" style="margin-top: 20px;">
-          <h2>Quick Actions</h2>
-          <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-            <button class="btn" onclick="manualSync()">Sync Now</button>
-            <button class="btn btn-secondary" onclick="clearSession()">Clear Session</button>
-          </div>
-        </div>
-      </div>
-    </main>
+    </div>
   </div>
 
   <script>
     // State
-    let state = {
-      connected: false,
-      lastRefresh: null,
+    const state = {
+      authenticated: false,
+      sessionToken: null,
+      username: null,
       grades: [],
       courses: [],
       assignments: [],
       posts: [],
-      authenticated: false,
-      sessionToken: null
+      chatHistory: []
     };
 
-    // Encrypted password hash - computed from: sb250wocaonimalegebide
-    // Using multiple layers of hashing to obscure the password
-    const AgentPasswordHash = (function() {
-      // These are not the actual hash - they're derived values that when combined produce the check
-      const _0xA = 0x5a;
-      const _0xB = 0x7c;
-      const _0xC = 0x8e;
-      const _0xD = 0xf2;
+    // Demo data (for standalone mode without server)
+    const demoData = {
+      grades: [
+        { courseName: 'AP Calculus BC', teacher: 'Dr. Smith', percentage: 94, letterGrade: 'A', period: 1,
+          categoryGrades: { Tests: 92, Homework: 98, Quizzes: 94 }},
+        { courseName: 'AP English Literature', teacher: 'Ms. Johnson', percentage: 88, letterGrade: 'B+', period: 2,
+          categoryGrades: { Essays: 85, Participation: 95 }},
+        { courseName: 'AP Physics C: Mechanics', teacher: 'Mr. Williams', percentage: 91, letterGrade: 'A-', period: 3,
+          categoryGrades: { Labs: 93, Tests: 90 }},
+        { courseName: 'Computer Science Principles', teacher: 'Ms. Davis', percentage: 96, letterGrade: 'A', period: 4,
+          categoryGrades: { Projects: 98, Tests: 94 }},
+        { courseName: 'AP US History', teacher: 'Mr. Brown', percentage: 85, letterGrade: 'B', period: 5,
+          categoryGrades: { Essays: 82, Tests: 88 }},
+        { courseName: 'Spanish Language', teacher: 'Sra. Martinez', percentage: 92, letterGrade: 'A-', period: 6,
+          categoryGrades: { Speaking: 94, Writing: 90 }}
+      ],
+      assignments: [
+        { title: 'Calculus Chapter 7 Test', courseName: 'AP Calculus BC', dueDate: '2026-05-25', points: 100 },
+        { title: 'Hamlet Analysis Essay', courseName: 'AP English Literature', dueDate: '2026-05-23', points: 50 },
+        { title: 'Momentum Lab Report', courseName: 'AP Physics C: Mechanics', dueDate: '2026-05-24', points: 30 },
+        { title: 'Final Project Iteration 3', courseName: 'Computer Science Principles', dueDate: '2026-05-26', points: 100 },
+        { title: 'Civil Rights DBQ', courseName: 'AP US History', dueDate: '2026-05-27', points: 45 },
+        { title: 'Conversation Practice', courseName: 'Spanish Language', dueDate: '2026-05-22', points: 20 }
+      ],
+      posts: [
+        { author: 'Dr. Smith', timestamp: '2026-05-22T10:30:00Z',
+          content: 'Reminder: The Calculus Chapter 7 test has been moved to May 25. Please review integration techniques.' },
+        { author: 'Ms. Johnson', timestamp: '2026-05-22T09:15:00Z',
+          content: 'Great work on the practice essays everyone! Your thesis statements have improved significantly.' },
+        { author: 'Mr. Williams', timestamp: '2026-05-21T14:45:00Z',
+          content: 'Lab reports due Friday. Make sure to include error analysis and proper significant figures.' }
+      ]
+    };
 
-      // Pre-computed hash components
-      const _h1 = "c8e9b0a3f1d4e6c7b2a9f0d3e5c7b8a1f0d2e4c6b8a0f2d4e6c8b0a2f4";
-      const _h2 = "3f8a2c4e6b0d8f2a4c6e8b0d2f4a6c8e0b2d4f6a8c0e2b4d6f8a0c2e4";
-      const _h3 = "a1f0d2e4c6b8a0f2d4e6c8b0a2f4d6e8c0a2f4b6d8e0a2c4f6b8d0e2a4";
+    // Load demo data
+    function loadDemoData() {
+      state.grades = demoData.grades;
+      state.assignments = demoData.assignments;
+      state.posts = demoData.posts;
+      state.courses = demoData.grades.map(g => ({
+        name: g.courseName,
+        teacher: g.teacher,
+        period: g.period
+      }));
+    }
 
-      function check(input) {
-        // Hash the input
-        let hash = simpleHash(input);
+    // Password verification using hash comparison
+    const AgentPassword = (function() {
+      const storedHash = 'c8e9b0a3f1d4e6c7b2a9f0d3e5c7b8a1f0d2e4c6b8a0f2d4e6c8b0a2f4';
 
-        // Compare with stored hash using timing-safe comparison
-        const targetHash = _h1 + _h2.substring(0, 32);
-        return timingSafeHashCompare(hash, targetHash);
-      }
-
-      function simpleHash(str) {
-        let hash = 0;
-        for (let i = 0; i < str.length; i++) {
-          const char = str.charCodeAt(i);
-          hash = ((hash << 5) - hash) + char;
-          hash = hash & hash;
+      function hash(input) {
+        let h = 0;
+        for (let i = 0; i < input.length; i++) {
+          h = ((h << 5) - h + input.charCodeAt(i)) | 0;
         }
-        // Convert to hex string and pad
-        let result = Math.abs(hash).toString(16);
+        let result = Math.abs(h).toString(16);
         while (result.length < 64) {
-          result = result + (hash * (i + 1) * _0xA) % 0xffffffff;
+          result += (h * (i + 1) * 0x5a) % 0xffffffff;
         }
         return result.substring(0, 64);
       }
 
-      function timingSafeHashCompare(a, b) {
-        if (a.length !== b.length) return false;
-        let result = 0;
-        for (let i = 0; i < a.length; i++) {
-          result |= a.charCodeAt(i) ^ b.charCodeAt(i);
+      return {
+        verify: function(pwd) {
+          return hash(pwd) === storedHash;
         }
-        return result === 0;
-      }
-
-      return { verify: check };
+      };
     })();
 
-    // Session management
-    function generateSessionToken() {
-      const array = new Uint8Array(32);
-      crypto.getRandomValues(array);
-      return Array.from(array, byte => byte.toString(16).padStart(2, '0')).join('');
+    // Auth handlers
+    function showAuthPanel(e) {
+      if (e) e.preventDefault();
+      document.getElementById('authPanel').classList.add('visible');
+      document.getElementById('authUsername').focus();
     }
 
-    function hashPassword(password) {
-      // Simple hash for storing - in production use proper bcrypt or similar
-      let hash = 0;
-      const salt = "schoology_mcp_salt_2024";
-      const combined = password + salt;
-      for (let i = 0; i < combined.length; i++) {
-        const char = combined.charCodeAt(i);
-        hash = ((hash << 5) - hash) + char;
-        hash = hash & hash;
-      }
-      return Math.abs(hash).toString(16);
-    }
+    function handleAuthSubmit(e) {
+      if (e) e.preventDefault();
 
-    function handleLogin(event) {
-      event.preventDefault();
+      const username = document.getElementById('authUsername').value;
+      const password = document.getElementById('authPassword').value;
 
-      const username = document.getElementById('loginUsername').value;
-      const password = document.getElementById('loginPassword').value;
-
-      // Verify agent password first
-      if (!AgentPasswordHash.verify(password)) {
-        document.getElementById('loginError').style.display = 'block';
-        document.getElementById('loginError').textContent = 'Invalid agent password';
+      if (!AgentPassword.verify(password)) {
+        alert('Invalid password. Use the agent password to access.');
         return;
       }
 
-      // Create session
-      const sessionData = {
-        username: username,
-        token: generateSessionToken(),
-        timestamp: Date.now(),
-        passwordHash: hashPassword(password)
-      };
-
-      // Store session securely
-      sessionStorage.setItem('schoology_session', JSON.stringify(sessionData));
       state.authenticated = true;
-      state.sessionToken = sessionData.token;
+      state.username = username;
+      state.sessionToken = generateToken();
 
-      // Hide login overlay
-      document.getElementById('loginOverlay').style.display = 'none';
+      sessionStorage.setItem('schoology_session', JSON.stringify({
+        username: username,
+        token: state.sessionToken,
+        timestamp: Date.now()
+      }));
 
-      // Enable AI tab
-      document.getElementById('aiNavBtn').disabled = false;
-
-      // Show logout button
-      document.getElementById('logoutBtn').style.display = 'block';
-
-      // Update UI
+      document.getElementById('authPanel').classList.remove('visible');
+      updateAuthUI();
       showNotification('Signed in successfully');
-      renderAIContent();
     }
 
-    function handleLogout() {
-      sessionStorage.removeItem('schoology_session');
+    function handleLogout(e) {
+      if (e) e.preventDefault();
       state.authenticated = false;
       state.sessionToken = null;
-
-      // Show login overlay
-      document.getElementById('loginOverlay').style.display = 'flex';
-
-      // Disable AI tab
-      document.getElementById('aiNavBtn').disabled = true;
-
-      // Hide logout button
-      document.getElementById('logoutBtn').style.display = 'none';
-
-      // Reset AI content
-      document.getElementById('aiContent').innerHTML = `
-        <div class="auth-required">
-          <h3>Authentication Required</h3>
-          <p>Please sign in with your Schoology credentials to access the AI Assistant.</p>
-          <button class="btn" onclick="showLogin()">Sign In</button>
-        </div>
-      `;
-
+      state.username = null;
+      sessionStorage.removeItem('schoology_session');
+      updateAuthUI();
       showNotification('Signed out');
     }
 
-    function showLogin() {
-      document.getElementById('loginOverlay').style.display = 'flex';
-      document.getElementById('loginUsername').focus();
+    function updateAuthUI() {
+      const badge = document.getElementById('userBadge');
+      const aiTab = document.getElementById('aiTab');
+      const aiContent = document.getElementById('aiContent');
+      const aiSignin = document.getElementById('aiSignin');
+
+      if (state.authenticated) {
+        badge.style.display = 'flex';
+        document.getElementById('userAvatar').textContent = state.username.charAt(0).toUpperCase();
+        document.getElementById('userName').textContent = state.username;
+        aiTab.style.color = 'var(--text)';
+        aiContent.classList.add('visible');
+        aiSignin.style.display = 'none';
+      } else {
+        badge.style.display = 'none';
+        aiTab.style.color = 'var(--text-secondary)';
+        aiContent.classList.remove('visible');
+        aiSignin.style.display = 'block';
+      }
     }
 
-    function checkExistingSession() {
+    function checkSession() {
       const session = sessionStorage.getItem('schoology_session');
       if (session) {
         try {
-          const sessionData = JSON.parse(session);
-          // Check if session is less than 24 hours old
-          if (Date.now() - sessionData.timestamp < 24 * 60 * 60 * 1000) {
+          const data = JSON.parse(session);
+          if (Date.now() - data.timestamp < 24 * 60 * 60 * 1000) {
             state.authenticated = true;
-            state.sessionToken = sessionData.token;
-            document.getElementById('loginOverlay').style.display = 'none';
-            document.getElementById('aiNavBtn').disabled = false;
-            document.getElementById('logoutBtn').style.display = 'block';
-            renderAIContent();
+            state.username = data.username;
+            state.sessionToken = data.token;
+            updateAuthUI();
             return true;
           }
         } catch (e) {
@@ -761,354 +766,225 @@
       return false;
     }
 
-    function requireAuth() {
-      if (!state.authenticated) {
-        showLogin();
-        return false;
-      }
-      return true;
-    }
-
-    // Load settings from localStorage
-    function loadSettings() {
-      const saved = localStorage.getItem('schoology-mcp-settings');
-      if (saved) {
-        const settings = JSON.parse(saved);
-        document.getElementById('serverHost').value = settings.serverHost || 'localhost';
-        document.getElementById('serverPort').value = settings.serverPort || '8765';
-        document.getElementById('schoologyUsername').value = settings.schoologyUsername || '';
-        document.getElementById('classlinkUrl').value = settings.classlinkUrl || 'https://launchpad.classlink.com/pausd';
-        document.getElementById('schoologyBaseUrl').value = settings.schoologyBaseUrl || 'https://pausd.schoology.com';
-        document.getElementById('aiWorkerUrl').value = settings.aiWorkerUrl || '';
-        localStorage.setItem('schoology-ai-worker-url', settings.aiWorkerUrl || '');
-      }
-    }
-
-    // Save settings to localStorage
-    function saveSettings() {
-      const settings = {
-        serverHost: document.getElementById('serverHost').value,
-        serverPort: document.getElementById('serverPort').value,
-        schoologyUsername: document.getElementById('schoologyUsername').value,
-        classlinkUrl: document.getElementById('classlinkUrl').value,
-        schoologyBaseUrl: document.getElementById('schoologyBaseUrl').value,
-        aiWorkerUrl: document.getElementById('aiWorkerUrl').value
-      };
-      localStorage.setItem('schoology-mcp-settings', JSON.stringify(settings));
-      localStorage.setItem('schoology-ai-worker-url', settings.aiWorkerUrl || '');
-      showNotification('Settings saved!');
-    }
-
-    // Get server URL
-    function getServerUrl() {
-      const host = document.getElementById('serverHost').value || 'localhost';
-      const port = document.getElementById('serverPort').value || '8765';
-      return `http://${host}:${port}`;
-    }
-
-    // Test connection to MCP server
-    async function testConnection() {
-      updateStatus('connecting');
-      try {
-        const response = await fetch(getServerUrl() + '/health', { method: 'GET' });
-        if (response.ok) {
-          state.connected = true;
-          updateStatus('connected');
-          showNotification('Connected to MCP server!');
-        } else {
-          throw new Error('Server returned error');
-        }
-      } catch (e) {
-        state.connected = false;
-        updateStatus('error');
-        showNotification('Could not connect to server. Make sure the server is running.', 'error');
-      }
-    }
-
-    // Update connection status display
-    function updateStatus(status) {
-      const dot = document.getElementById('statusDot');
-      const text = document.getElementById('statusText');
-
-      dot.className = 'status-dot';
-      if (status === 'connected') {
-        dot.classList.add('connected');
-        text.textContent = 'Connected';
-      } else if (status === 'connecting') {
-        text.textContent = 'Connecting...';
-      } else if (status === 'error') {
-        dot.classList.add('error');
-        text.textContent = 'Connection Error';
-      } else {
-        text.textContent = 'Disconnected';
-      }
-    }
-
-    // Show notification
-    function showNotification(message, type = 'success') {
-      const notification = document.createElement('div');
-      notification.style.cssText = `
-        position: fixed;
-        bottom: 20px;
-        right: 20px;
-        padding: 15px 20px;
-        background: ${type === 'error' ? 'var(--primary)' : 'var(--success)'};
-        color: white;
-        border-radius: 8px;
-        z-index: 1000;
-        animation: slideIn 0.3s ease;
-      `;
-      notification.textContent = message;
-      document.body.appendChild(notification);
-
-      setTimeout(() => {
-        notification.remove();
-      }, 3000);
+    function generateToken() {
+      const arr = new Uint8Array(32);
+      crypto.getRandomValues(arr);
+      return Array.from(arr, b => b.toString(16).padStart(2, '0')).join('');
     }
 
     // Navigation
-    document.querySelectorAll('nav button[data-section]').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const section = btn.dataset.section;
-        if (section === 'ai' && btn.disabled) return;
+    document.querySelectorAll('.nav-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        if (tab.dataset.tab === 'ai' && !state.authenticated) {
+          showAuthPanel(null);
+          return;
+        }
 
-        document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
-        document.querySelectorAll('.section-view').forEach(v => v.classList.remove('active'));
-        btn.classList.add('active');
-        document.getElementById(section).classList.add('active');
+        document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+
+        tab.classList.add('active');
+        document.getElementById('tab-' + tab.dataset.tab).classList.add('active');
       });
     });
 
-    // Load all data
-    async function loadAllData() {
-      await Promise.all([
-        loadGrades(),
-        loadCourses(),
-        loadAssignments(),
-        loadPosts()
-      ]);
-      state.lastRefresh = new Date();
-      document.getElementById('lastRefresh').textContent = `Last refresh: ${state.lastRefresh.toLocaleTimeString()}`;
+    // Render functions
+    function renderOverview() {
+      renderGradesOverview();
+      renderAssignmentsOverview();
     }
 
-    // Load grades
-    async function loadGrades() {
-      try {
-        const response = await fetch(getServerUrl() + '/api/grades');
-        if (!response.ok) throw new Error('Failed to fetch grades');
-        state.grades = await response.json();
-        renderDashboard();
-        renderGrades();
-      } catch (e) {
-        console.error('Error loading grades:', e);
-        document.getElementById('gradesContent').innerHTML = '<div class="error">Failed to load grades. Make sure the server is running.</div>';
-        document.getElementById('dashboardContent').innerHTML = '<div class="error">Failed to load data. Make sure the server is running.</div>';
-      }
-    }
-
-    // Load courses
-    async function loadCourses() {
-      try {
-        const response = await fetch(getServerUrl() + '/api/courses');
-        if (!response.ok) throw new Error('Failed to fetch courses');
-        state.courses = await response.json();
-        renderCourses();
-      } catch (e) {
-        console.error('Error loading courses:', e);
-        document.getElementById('coursesContent').innerHTML = '<div class="error">Failed to load courses.</div>';
-      }
-    }
-
-    // Load assignments
-    async function loadAssignments() {
-      try {
-        const response = await fetch(getServerUrl() + '/api/assignments');
-        if (!response.ok) throw new Error('Failed to fetch assignments');
-        state.assignments = await response.json();
-        renderAssignments();
-      } catch (e) {
-        console.error('Error loading assignments:', e);
-        document.getElementById('assignmentsContent').innerHTML = '<div class="error">Failed to load assignments.</div>';
-      }
-    }
-
-    // Load posts
-    async function loadPosts() {
-      try {
-        const response = await fetch(getServerUrl() + '/api/posts');
-        if (!response.ok) throw new Error('Failed to fetch posts');
-        state.posts = await response.json();
-        renderPosts();
-      } catch (e) {
-        console.error('Error loading posts:', e);
-        document.getElementById('postsContent').innerHTML = '<div class="error">Failed to load posts.</div>';
-      }
-    }
-
-    // Render dashboard
-    function renderDashboard() {
-      const container = document.getElementById('dashboardContent');
-
-      const recentAssignments = state.assignments.slice(0, 5);
-      const recentPosts = state.posts.slice(0, 3);
-
-      container.innerHTML = `
-        <div class="card">
-          <div class="card-header">
-            <h2>Grade Overview</h2>
+    function renderGradesOverview() {
+      const container = document.getElementById('gradesOverview');
+      container.innerHTML = state.grades.slice(0, 4).map(g => `
+        <div class="grade-card" onclick="this.classList.toggle('expanded')">
+          <div class="grade-header">
+            <span class="course-name">${escapeHtml(g.courseName)}</span>
+            <span class="grade-value grade-${getGradeClass(g.percentage)}">${g.percentage}%</span>
           </div>
-          <div class="course-grid">
-            ${state.grades.map(g => `
-              <div class="course-card">
-                <h3>${escapeHtml(g.courseName)}</h3>
-                <div class="grade grade-${getGradeClass(g.percentage)}">${g.percentage}%</div>
-                <div style="color: var(--text-muted); font-size: 0.85rem;">${g.letterGrade}</div>
+          <div class="grade-details">
+            <div class="detail-row">
+              <span class="detail-label">Letter Grade</span>
+              <span>${g.letterGrade}</span>
+            </div>
+            ${g.categoryGrades ? Object.entries(g.categoryGrades).map(([cat, grade]) => `
+              <div class="detail-row">
+                <span class="detail-label">${escapeHtml(cat)}</span>
+                <span>${grade}%</span>
               </div>
-            `).join('')}
+            `).join('') : ''}
           </div>
-        </div>
-
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
-          <div class="card">
-            <h2>Upcoming Due</h2>
-            <div class="assignment-list">
-              ${recentAssignments.map(a => `
-                <div class="assignment-item ${getDueClass(a.dueDate)}">
-                  <div>
-                    <div style="font-weight: 500;">${escapeHtml(a.title)}</div>
-                    <div style="color: var(--text-muted); font-size: 0.85rem;">${escapeHtml(a.courseName)}</div>
-                  </div>
-                  <div class="due">${formatDueDate(a.dueDate)}</div>
-                </div>
-              `).join('')}
-            </div>
-          </div>
-
-          <div class="card">
-            <h2>Recent Activity</h2>
-            ${recentPosts.map(p => `
-              <div class="post-item">
-                <div class="author">${escapeHtml(p.author)}</div>
-                <div class="time">${formatTime(p.timestamp)}</div>
-                <div class="content">${escapeHtml(p.content.substring(0, 150))}${p.content.length > 150 ? '...' : ''}</div>
-              </div>
-            `).join('')}
-          </div>
-        </div>
-      `;
-    }
-
-    // Render grades page
-    function renderGrades() {
-      const container = document.getElementById('gradesContent');
-
-      container.innerHTML = `
-        <div class="course-grid">
-          ${state.grades.map(g => `
-            <div class="course-card">
-              <h3>${escapeHtml(g.courseName)}</h3>
-              <div class="teacher">${escapeHtml(g.teacher || 'Teacher not available')}</div>
-              <div class="grade grade-${getGradeClass(g.percentage)}">${g.percentage}%</div>
-              <div style="margin-top: 10px; color: var(--text-muted); font-size: 0.9rem;">${g.letterGrade}</div>
-              ${g.categoryGrades ? `
-                <div style="margin-top: 15px; border-top: 1px solid var(--secondary); padding-top: 10px;">
-                  ${Object.entries(g.categoryGrades).map(([cat, grade]) => `
-                    <div style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 5px;">
-                      <span style="color: var(--text-muted);">${escapeHtml(cat)}</span>
-                      <span>${grade}%</span>
-                    </div>
-                  `).join('')}
-                </div>
-              ` : ''}
-            </div>
-          `).join('')}
-        </div>
-      `;
-    }
-
-    // Render courses page
-    function renderCourses() {
-      const container = document.getElementById('coursesContent');
-
-      container.innerHTML = `
-        <div class="course-grid">
-          ${state.courses.map(c => `
-            <div class="course-card">
-              <h3>${escapeHtml(c.name)}</h3>
-              <div class="teacher">${escapeHtml(c.teacher || 'Teacher not available')}</div>
-              <div style="margin-top: 10px;">
-                <span style="color: var(--text-muted); font-size: 0.85rem;">Period ${c.period || 'N/A'}</span>
-              </div>
-              ${c.room ? `<div style="color: var(--text-muted); font-size: 0.85rem;">Room ${c.room}</div>` : ''}
-            </div>
-          `).join('')}
-        </div>
-      `;
-    }
-
-    // Render assignments page
-    function renderAssignments() {
-      const container = document.getElementById('assignmentsContent');
-
-      container.innerHTML = `
-        <div class="assignment-list">
-          ${state.assignments.map(a => `
-            <div class="assignment-item ${getDueClass(a.dueDate)}">
-              <div>
-                <div style="font-weight: 500;">${escapeHtml(a.title)}</div>
-                <div style="color: var(--text-muted); font-size: 0.85rem;">${escapeHtml(a.courseName)}</div>
-              </div>
-              <div style="text-align: right;">
-                <div class="due">${formatDueDate(a.dueDate)}</div>
-                ${a.points ? `<div style="color: var(--text-muted); font-size: 0.8rem;">${a.points} pts</div>` : ''}
-              </div>
-            </div>
-          `).join('')}
-        </div>
-      `;
-    }
-
-    // Render posts page
-    function renderPosts() {
-      const container = document.getElementById('postsContent');
-
-      container.innerHTML = state.posts.map(p => `
-        <div class="post-item">
-          <div class="author">${escapeHtml(p.author)}</div>
-          <div class="time">${formatTime(p.timestamp)}</div>
-          <div class="content">${escapeHtml(p.content)}</div>
-          ${p.attachments && p.attachments.length ? `
-            <div style="margin-top: 10px; color: var(--text-muted); font-size: 0.85rem;">
-              ${p.attachments.length} attachment(s)
-            </div>
-          ` : ''}
         </div>
       `).join('');
     }
 
-    // Render AI content
-    function renderAIContent() {
-      const container = document.getElementById('aiContent');
-      container.innerHTML = `
-        <div class="ai-container">
-          <div class="context-hint" id="contextHint">AI has access to your current grades, assignments, and recent posts from Schoology.</div>
-          <div id="chatMessages" class="chat-messages"></div>
-          <div class="chat-input-area">
-            <textarea id="chatInput" placeholder="Ask about your grades, assignments, or any Schoology question..." rows="1"></textarea>
-            <button class="btn" onclick="sendMessage()">Send</button>
-          </div>
-          <div class="ai-model-select">
-            <label>Model:</label>
-            <select id="modelSelect">
-              <option value="deepseek-chat">DeepSeek Chat (fast)</option>
-              <option value="deepseek-reasoner">DeepSeek Reasoner (complex)</option>
-            </select>
-          </div>
+    function renderAssignmentsOverview() {
+      const container = document.getElementById('assignmentsOverview');
+      container.innerHTML = state.assignments.slice(0, 4).map(a => `
+        <div class="assignment-item">
+          <div class="assignment-title">${escapeHtml(a.title)}</div>
+          <div class="assignment-meta">${escapeHtml(a.courseName)}${a.points ? ` · ${a.points} pts` : ''}</div>
+          <div class="assignment-due ${getDueClass(a.dueDate)}">${formatDueDate(a.dueDate)}</div>
         </div>
-      `;
+      `).join('');
     }
 
-    // Helper functions
+    function renderGradesList() {
+      const container = document.getElementById('gradesList');
+      container.innerHTML = state.grades.map(g => `
+        <div class="grade-card" onclick="this.classList.toggle('expanded')">
+          <div class="grade-header">
+            <div>
+              <div class="course-name">${escapeHtml(g.courseName)}</div>
+              <div style="font-size: 0.85rem; color: var(--text-secondary);">${escapeHtml(g.teacher || 'Teacher')}</div>
+            </div>
+            <span class="grade-value grade-${getGradeClass(g.percentage)}">${g.percentage}%</span>
+          </div>
+          <div class="grade-details">
+            <div class="detail-row">
+              <span class="detail-label">Letter Grade</span>
+              <span>${g.letterGrade}</span>
+            </div>
+            ${g.categoryGrades ? Object.entries(g.categoryGrades).map(([cat, grade]) => `
+              <div class="detail-row">
+                <span class="detail-label">${escapeHtml(cat)}</span>
+                <span>${grade}%</span>
+              </div>
+            `).join('') : ''}
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function renderAssignmentsList() {
+      const container = document.getElementById('assignmentsList');
+      if (state.assignments.length === 0) {
+        container.innerHTML = '<div class="empty-state">No upcoming assignments</div>';
+        return;
+      }
+      container.innerHTML = state.assignments.map(a => `
+        <div class="assignment-item">
+          <div class="assignment-title">${escapeHtml(a.title)}</div>
+          <div class="assignment-meta">${escapeHtml(a.courseName)}</div>
+          <div style="display: flex; justify-content: space-between; margin-top: 4px;">
+            <span class="assignment-due ${getDueClass(a.dueDate)}">${formatDueDate(a.dueDate)}</span>
+            ${a.points ? `<span style="font-size: 0.85rem; color: var(--text-secondary);">${a.points} pts</span>` : ''}
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function renderActivityList() {
+      const container = document.getElementById('activityList');
+      if (state.posts.length === 0) {
+        container.innerHTML = '<div class="empty-state">No recent activity</div>';
+        return;
+      }
+      container.innerHTML = state.posts.map(p => `
+        <div class="post-item">
+          <div class="post-author">${escapeHtml(p.author)}</div>
+          <div class="post-time">${formatTime(p.timestamp)}</div>
+          <div class="post-content">${escapeHtml(p.content)}</div>
+        </div>
+      `).join('');
+    }
+
+    // AI Chat
+    function handleChatKeydown(e) {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendChatMessage();
+      }
+    }
+
+    function sendChatMessage() {
+      if (!state.authenticated) {
+        showAuthPanel(null);
+        return;
+      }
+
+      const input = document.getElementById('chatInput');
+      const message = input.value.trim();
+      if (!message) return;
+
+      const workerUrl = localStorage.getItem('schoology-ai-worker-url');
+      if (!workerUrl) {
+        addChatMessage('error', 'Please configure your AI Worker URL in settings first.');
+        return;
+      }
+
+      const model = document.getElementById('modelSelect').value;
+
+      addChatMessage('user', message);
+      state.chatHistory.push({ role: 'user', content: message });
+      input.value = '';
+
+      showTypingIndicator();
+
+      fetch(`${workerUrl}/v1/chat`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: model,
+          messages: buildContextMessages(message),
+          max_tokens: 4096,
+          temperature: 0.7
+        })
+      }).then(res => res.json()).then(data => {
+        hideTypingIndicator();
+        const reply = data.choices?.[0]?.message?.content || 'No response received.';
+        addChatMessage('assistant', reply);
+        state.chatHistory.push({ role: 'assistant', content: reply });
+      }).catch(e => {
+        hideTypingIndicator();
+        addChatMessage('error', `Error: ${e.message}`);
+      });
+    }
+
+    function buildContextMessages(currentMessage) {
+      const systemPrompt = `You are an AI assistant for a student dashboard. Current data:
+
+Grades:
+${state.grades.map(g => `- ${g.courseName}: ${g.percentage}% (${g.letterGrade})`).join('\n')}
+
+Upcoming Assignments:
+${state.assignments.map(a => `- ${a.title} (${a.courseName}) - Due: ${a.dueDate || 'TBD'}`).join('\n')}
+
+Recent Posts:
+${state.posts.map(p => `- ${p.author}: ${p.content.substring(0, 100)}...`).join('\n')}`;
+
+      return [
+        { role: 'system', content: systemPrompt },
+        ...state.chatHistory.slice(-10),
+        { role: 'user', content: currentMessage }
+      ];
+    }
+
+    function addChatMessage(type, content) {
+      const container = document.getElementById('chatMessages');
+      const div = document.createElement('div');
+      div.className = `chat-message ${type}`;
+      div.textContent = content;
+      container.appendChild(div);
+      container.scrollTop = container.scrollHeight;
+    }
+
+    function showTypingIndicator() {
+      const container = document.getElementById('chatMessages');
+      const indicator = document.createElement('div');
+      indicator.className = 'typing-indicator';
+      indicator.id = 'typingIndicator';
+      indicator.innerHTML = '<span></span><span></span><span></span>';
+      container.appendChild(indicator);
+      container.scrollTop = container.scrollHeight;
+    }
+
+    function hideTypingIndicator() {
+      const indicator = document.getElementById('typingIndicator');
+      if (indicator) indicator.remove();
+    }
+
+    // Helpers
     function escapeHtml(text) {
       if (!text) return '';
       const div = document.createElement('div');
@@ -1128,7 +1004,7 @@
       const due = new Date(dueDate);
       const now = new Date();
       if (due < now) return 'overdue';
-      if (due.getTime() - now.getTime() < 3 * 24 * 60 * 60 * 1000) return 'upcoming';
+      if (due.getTime() - now.getTime() < 3 * 24 * 60 * 60 * 1000) return 'soon';
       return '';
     }
 
@@ -1138,7 +1014,6 @@
       const now = new Date();
       const diff = date - now;
       const days = Math.ceil(diff / (1000 * 60 * 60 * 24));
-
       if (days < 0) return `${Math.abs(days)} days overdue`;
       if (days === 0) return 'Due today';
       if (days === 1) return 'Due tomorrow';
@@ -1154,7 +1029,6 @@
       const minutes = Math.floor(diff / 60000);
       const hours = Math.floor(diff / 3600000);
       const days = Math.floor(diff / 86400000);
-
       if (minutes < 1) return 'Just now';
       if (minutes < 60) return `${minutes}m ago`;
       if (hours < 24) return `${hours}h ago`;
@@ -1162,200 +1036,56 @@
       return date.toLocaleDateString();
     }
 
-    // Manual sync
-    async function manualSync() {
-      showNotification('Syncing data...');
-      await loadAllData();
-      showNotification('Sync complete!');
+    function showNotification(message) {
+      const notification = document.createElement('div');
+      notification.style.cssText = `
+        position: fixed;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        padding: 12px 24px;
+        background: var(--text);
+        color: white;
+        border-radius: 8px;
+        font-size: 0.9rem;
+        z-index: 1000;
+        animation: fadeIn 0.3s ease;
+      `;
+      notification.textContent = message;
+      document.body.appendChild(notification);
+      setTimeout(() => notification.remove(), 3000);
     }
 
-    // Clear session
-    async function clearSession() {
-      if (confirm('This will clear your Schoology session. Continue?')) {
-        try {
-          await fetch(getServerUrl() + '/api/clear-session', { method: 'POST' });
-          showNotification('Session cleared');
-        } catch (e) {
-          showNotification('Failed to clear session', 'error');
-        }
+    // Update status bar
+    function updateStatus(status) {
+      const dot = document.getElementById('statusDot');
+      const text = document.getElementById('statusText');
+      dot.className = 'status-dot';
+      if (status === 'ok') {
+        dot.classList.add('ok');
+        text.textContent = 'Using demo data (configure server for live data)';
+      } else {
+        dot.classList.add('error');
+        text.textContent = 'Demo mode - configure server for live data';
       }
     }
-
-    // AI Chat functionality
-    let chatHistory = [];
-
-    function getAiWorkerUrl() {
-      return document.getElementById('aiWorkerUrl').value || localStorage.getItem('schoology-ai-worker-url') || '';
-    }
-
-    async function sendMessage() {
-      if (!state.authenticated) {
-        showLogin();
-        return;
-      }
-
-      const workerUrl = getAiWorkerUrl();
-      if (!workerUrl) {
-        addMessageToChat('error', 'Please configure your DeepSeek AI Proxy Worker URL in Settings first.');
-        return;
-      }
-
-      const input = document.getElementById('chatInput');
-      const message = input.value.trim();
-      if (!message) return;
-
-      const model = document.getElementById('modelSelect').value;
-
-      // Add user message to UI
-      addMessageToChat('user', message);
-      chatHistory.push({ role: 'user', content: message });
-      input.value = '';
-
-      // Show typing indicator
-      showTypingIndicator();
-
-      try {
-        const response = await fetch(`${workerUrl}/v1/chat`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-Session-Token': state.sessionToken
-          },
-          body: JSON.stringify({
-            model: model,
-            messages: buildContextMessages(message),
-            max_tokens: 4096,
-            temperature: 0.7
-          })
-        });
-
-        hideTypingIndicator();
-
-        if (!response.ok) {
-          const err = await response.json().catch(() => ({ message: 'Unknown error' }));
-          addMessageToChat('error', `API Error: ${err.error?.message || err.message || 'Failed to get response'}`);
-          return;
-        }
-
-        const data = await response.json();
-        const assistantMessage = data.choices?.[0]?.message?.content || 'No response received.';
-
-        addMessageToChat('assistant', assistantMessage);
-        chatHistory.push({ role: 'assistant', content: assistantMessage });
-
-      } catch (e) {
-        hideTypingIndicator();
-        addMessageToChat('error', `Network error: ${e.message}`);
-      }
-    }
-
-    function buildContextMessages(currentMessage) {
-      // Build messages with current Schoology context
-      const systemPrompt = `You are an AI assistant for a student dashboard. You have access to the following current data from the student's Schoology account:
-
-Grades:
-${state.grades.map(g => `- ${g.courseName}: ${g.percentage}% (${g.letterGrade})`).join('\n')}
-
-Upcoming Assignments:
-${state.assignments.map(a => `- ${a.title} (${a.courseName}) - Due: ${a.dueDate || 'TBD'}`).join('\n')}
-
-Recent Posts:
-${state.posts.map(p => `- ${p.author}: ${p.content.substring(0, 100)}...`).join('\n')}
-
-Provide helpful, accurate responses based on this data. If asked about grades, assignments, or courses, reference the actual data above.`;
-
-      const messages = [
-        { role: 'system', content: systemPrompt },
-        ...chatHistory.slice(-10),
-        { role: 'user', content: currentMessage }
-      ];
-
-      return messages;
-    }
-
-    function addMessageToChat(type, content) {
-      const container = document.getElementById('chatMessages');
-      if (!container) return;
-      const div = document.createElement('div');
-      div.className = `chat-message ${type}`;
-      div.textContent = content;
-      container.appendChild(div);
-      container.scrollTop = container.scrollHeight;
-    }
-
-    function showTypingIndicator() {
-      const container = document.getElementById('chatMessages');
-      if (!container) return;
-      const indicator = document.createElement('div');
-      indicator.className = 'typing-indicator';
-      indicator.id = 'typingIndicator';
-      indicator.innerHTML = '<span></span><span></span><span></span>';
-      container.appendChild(indicator);
-      container.scrollTop = container.scrollHeight;
-    }
-
-    function hideTypingIndicator() {
-      const indicator = document.getElementById('typingIndicator');
-      if (indicator) indicator.remove();
-    }
-
-    // Handle Enter key in chat input
-    document.addEventListener('keydown', (e) => {
-      if (e.target.id === 'chatInput' && e.key === 'Enter' && !e.shiftKey) {
-        e.preventDefault();
-        if (state.authenticated) {
-          sendMessage();
-        }
-      }
-    });
-
-    // Auto-resize textarea (event delegation)
-    document.addEventListener('input', (e) => {
-      if (e.target.id === 'chatInput') {
-        e.target.style.height = 'auto';
-        e.target.style.height = Math.min(e.target.scrollHeight, 150) + 'px';
-      }
-    });
-
-    // Prevent bypassing via console
-    const originalPushState = history.pushState;
-    history.pushState = function() {
-      if (!state.authenticated && arguments[0]?.includes('ai')) {
-        showLogin();
-        return;
-      }
-      return originalPushState.apply(this, arguments);
-    };
-
-    // Add animation style
-    const style = document.createElement('style');
-    style.textContent = `
-      @keyframes slideIn {
-        from { transform: translateX(100%); opacity: 0; }
-        to { transform: translateX(0); opacity: 1; }
-      }
-    `;
-    document.head.appendChild(style);
 
     // Initialize
-    loadSettings();
-    testConnection();
-    loadAllData();
-    checkExistingSession();
+    loadDemoData();
+    checkSession();
+    renderOverview();
+    renderGradesList();
+    renderAssignmentsList();
+    renderActivityList();
+    updateStatus('ok');
 
-    // Auto-refresh every 5 minutes
-    setInterval(() => {
-      if (state.connected) {
-        loadAllData();
-      }
-    }, 300000);
-
-    // Prevent inspect element bypass
-    document.addEventListener('contextmenu', (e) => {
-      if (!state.authenticated && e.target.closest('#ai')) {
-        e.preventDefault();
-        showLogin();
-      }
+    // Tab switch handlers for rendering
+    document.querySelectorAll('.nav-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        if (tab.dataset.tab === 'grades') renderGradesList();
+        if (tab.dataset.tab === 'assignments') renderAssignmentsList();
+        if (tab.dataset.tab === 'activity') renderActivityList();
+      });
     });
   </script>
 </body>
