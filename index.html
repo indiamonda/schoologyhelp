@@ -71,6 +71,7 @@
       margin-bottom: 16px;
       position: relative;
       z-index: 1;
+      color: #7dd3fc;
     }
 
     .landing-hero .tagline {
@@ -596,22 +597,22 @@
 
     <div class="login-section">
       <div class="login-container">
-        <h2>PAUSD Schoology Access</h2>
-        <p class="login-subtitle">Enter your student ID and agent password to access your dashboard</p>
+        <h2>Sign in to Schoology</h2>
+        <p class="login-subtitle">Enter your PAUSD credentials to access your dashboard</p>
 
-        <div id="loginError" class="login-error">Invalid agent password</div>
+        <div id="loginError" class="login-error">Invalid credentials</div>
 
         <form class="login-form" id="loginForm">
           <input type="text" id="loginUsername" placeholder="PAUSD Student ID" required>
-          <input type="password" id="loginPassword" placeholder="Agent Password" required>
-          <button type="button" class="login-btn" onclick="handleLogin({preventDefault:()=>{}})">Access Dashboard</button>
+          <input type="password" id="loginPassword" placeholder="Schoology Password" required>
+          <button type="button" class="login-btn" onclick="handleLogin({preventDefault:()=>{}})">Sign In</button>
         </form>
 
         <div class="login-divider"><span>or</span></div>
 
         <button class="demo-btn" onclick="enterDemoMode()">Try Demo Mode</button>
 
-        <p class="login-hint">This tool provides AI-powered access to your Schoology grades, assignments, and more.</p>
+        <p class="login-hint">Your credentials are used to authenticate with Schoology via MCP.</p>
       </div>
     </div>
 
@@ -840,21 +841,31 @@
       }
     };
 
-    // Login
+    // Login - Step 1: Store Schoology credentials, then prompt for agent password
     function handleLogin(e) {
       if (e && e.preventDefault) e.preventDefault();
       const username = document.getElementById('loginUsername').value.trim();
       const password = document.getElementById('loginPassword').value;
 
-      if (!username) {
-        document.getElementById('loginError').textContent = 'Please enter a username';
+      if (!username || !password) {
+        document.getElementById('loginError').textContent = 'Please enter both student ID and password';
         document.getElementById('loginError').style.display = 'block';
         return;
       }
 
-      if (!AgentPassword.verify(password)) {
-        document.getElementById('loginError').textContent = 'Invalid agent password';
-        document.getElementById('loginError').style.display = 'block';
+      // Store Schoology credentials for MCP server
+      state.schoologyUsername = username;
+      state.schoologyPassword = password;
+      localStorage.setItem('schoology_credentials', JSON.stringify({
+        username: username,
+        // Note: password should be stored securely in production
+        timestamp: Date.now()
+      }));
+
+      // Now prompt for agent password
+      const agentPass = prompt('Enter agent password to access the dashboard:');
+      if (!AgentPassword.verify(agentPass)) {
+        alert('Invalid agent password. Access denied.');
         return;
       }
 
