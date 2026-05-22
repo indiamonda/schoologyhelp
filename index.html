@@ -574,6 +574,19 @@
     .notification.info { background: var(--primary); }
     @keyframes slideUp { from { transform: translateX(-50%) translateY(20px); opacity: 0; } to { transform: translateX(-50%) translateY(0); opacity: 1; } }
 
+    /* Error display */
+    .error-display { text-align: center; padding: 40px 20px; }
+    .error-icon { font-size: 3rem; margin-bottom: 16px; }
+    .error-title { font-size: 1.3rem; font-weight: 600; margin-bottom: 8px; color: var(--text); }
+    .error-message { color: var(--text-secondary); margin-bottom: 8px; }
+    .error-hint { font-size: 0.85rem; color: var(--text-secondary); padding: 12px 16px; background: var(--bg); border-radius: 8px; margin-top: 16px; }
+    .error-actions { display: flex; gap: 12px; justify-content: center; margin-top: 20px; }
+    .error-btn { padding: 12px 24px; border-radius: 10px; font-size: 0.95rem; font-family: 'Didact Gothic', sans-serif; cursor: pointer; transition: all 0.2s; }
+    .error-btn.primary { background: var(--primary); color: white; border: none; }
+    .error-btn.primary:hover { background: #005bb5; }
+    .error-btn.secondary { background: var(--surface); color: var(--text); border: 1px solid var(--border); }
+    .error-btn.secondary:hover { border-color: var(--primary); }
+
     @media (max-width: 600px) {
       .landing-hero { padding: 40px 20px; }
       .landing-hero h1 { font-size: 2rem; }
@@ -1067,20 +1080,13 @@
         // Check if we got mock data (from server running without MCP connected)
         // Real MCP returns arrays directly, mock returns objects with _mock flag
         if (gradesData._mock === true) {
-          // Server is running but MCP not connected - show demo mode
-          state.demoMode = true;
-          // Extract the actual data from mock wrapper
-          if (gradesData.grades) state.grades = gradesData.grades;
-          if (coursesData.courses) state.courses = coursesData.courses;
-          if (assignmentsData.assignments) state.assignments = assignmentsData.assignments;
-          if (postsData.posts) state.posts = postsData.posts;
-          document.getElementById('statusText').textContent = 'Demo Mode (MCP not connected)';
-          document.getElementById('statusDot').style.background = 'var(--warning)';
-          renderGradesOverview();
-          renderAssignmentsOverview();
-          renderGradesList();
-          renderAssignmentsList();
-          renderActivityList();
+          // MCP not connected - show error, don't fall back to demo
+          showDetailedError({
+            type: 'mcp_not_connected',
+            title: 'Schoology MCP Not Connected',
+            message: 'The server is running but the Schoology MCP is not connected. Real-time data is unavailable.',
+            hint: 'Contact the administrator to set up the Schoology MCP connection.'
+          });
           return;
         }
 
@@ -1102,17 +1108,41 @@
         renderActivityList();
 
       } catch (e) {
-        // Connection or parse error
+        // Connection or parse error - show detailed error instead of falling back to demo
         console.error('Data fetch failed:', e.message);
-        state.demoMode = true;
-        document.getElementById('statusText').textContent = 'Demo Mode (API unavailable: ' + e.message + ')';
-        document.getElementById('statusDot').style.background = 'var(--warning)';
-        loadDemoData();
-        renderGradesOverview();
-        renderAssignmentsOverview();
-        renderGradesList();
-        renderAssignmentsList();
-        renderActivityList();
+        let errorType = 'connection_error';
+        let errorTitle = 'Connection Failed';
+        let errorMessage = e.message;
+        let errorHint = '';
+
+        if (e.message.includes('Failed to fetch') || e.message.includes('NetworkError') || e.message.includes('network')) {
+          errorType = 'network_error';
+          errorTitle = 'Network Error';
+          errorMessage = 'Could not connect to the API server.';
+          errorHint = 'Check your internet connection or try again later.';
+        } else if (e.message.includes('JSON') || e.message.includes('parse')) {
+          errorType = 'invalid_response';
+          errorTitle = 'Invalid Server Response';
+          errorMessage = 'The server returned an invalid response.';
+          errorHint = 'The server may be misconfigured. Contact the administrator.';
+        } else if (e.message.includes('HTML')) {
+          errorType = 'server_error';
+          errorTitle = 'Server Error';
+          errorMessage = 'The server returned an error page instead of data.';
+          errorHint = 'The Schoology MCP may not be properly configured on the server.';
+        } else if (e.message.includes('status: 5') || e.message.includes('status: 4')) {
+          errorType = 'http_error';
+          errorTitle = 'Server Error (' + e.message + ')';
+          errorMessage = 'The API server returned an error status code.';
+          errorHint = 'The server encountered an error. Contact the administrator.';
+        }
+
+        showDetailedError({
+          type: errorType,
+          title: errorTitle,
+          message: errorMessage,
+          hint: errorHint
+        });
       }
     }
 
@@ -1133,6 +1163,49 @@
         renderAssignmentsList();
         renderActivityList();
       }
+    }
+
+    function showDetailedError(error) {
+      // Clear all list containers and show error
+      const containers = ['gradesOverview', 'assignmentsOverview', 'gradesList', 'assignmentsList', 'activityList'];
+      containers.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.innerHTML = '';
+      });
+
+      // Show error in gradesOverview as the primary error display
+      const overviewGrades = document.getElementById('gradesOverview');
+      if (overviewGrades) {
+        const icon = error.type === 'mcp_not_connected' ? '⚙️' :
+                     error.type === 'network_error' ? '📡' :
+                     error.type === 'invalid_response' ? '⚠️' :
+                     error.type === 'server_error' ? '🔧' : '❌';
+        overviewGrades.innerHTML = `
+          <div class="error-display">
+            <div class="error-icon">${icon}</div>
+            <div class="error-title">${escapeHtml(error.title)}</div>
+            <div class="error-message">${escapeHtml(error.message)}</div>
+            <div class="error-hint">💡 ${escapeHtml(error.hint)}</div>
+            <div class="error-actions">
+              <button class="error-btn primary" onclick="retryFetch()">Try Again</button>
+              <button class="error-btn secondary" onclick="enterDemoMode()">Use Demo Mode</button>
+            </div>
+          </div>
+        `;
+      }
+
+      // Update status
+      document.getElementById('statusText').textContent = error.type.replace(/_/g, ' ');
+      document.getElementById('statusDot').style.background = 'var(--error)';
+
+      state.error = error;
+    }
+
+    function retryFetch() {
+      delete state.error;
+      document.getElementById('statusDot').style.background = 'var(--warning)';
+      document.getElementById('statusText').textContent = 'Connecting...';
+      fetchRealData();
     }
 
     function showConnectionError() {
