@@ -652,12 +652,8 @@
       <!-- AI Tab (Default) -->
       <div class="tab-content active" id="tab-ai">
         <div class="section">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-            <div class="section-title" style="margin-bottom: 0;">AI Study Assistant</div>
-            <select class="model-select" id="modelSelect">
-              <option value="deepseek-chat">DeepSeek Chat</option>
-              <option value="deepseek-reasoner">DeepSeek Reasoner</option>
-            </select>
+          <div style="margin-bottom: 16px;">
+            <div class="section-title">AI Study Assistant</div>
           </div>
 
           <div class="ai-container">
@@ -677,7 +673,7 @@
               </div>
             </div>
 
-            <div id="imagePreviewContainer" class="image-preview" style="display: none;"></div>
+            <div id="filePreviewContainer" class="image-preview" style="display: none;"></div>
             <div id="ocrProgress" class="ocr-progress" style="display: none;"></div>
 
             <div class="chat-input-area">
@@ -706,26 +702,15 @@
               </div>
 
               <div class="chat-tools">
-                <label class="chat-tool" for="imageUpload">
+                <label class="chat-tool" for="fileUpload">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <rect x="3" y="3" width="18" height="18" rx="2"/>
-                    <circle cx="8.5" cy="8.5" r="1.5"/>
-                    <path d="M21 15l-5-5L5 21"/>
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                    <polyline points="17 8 12 3 7 8"/>
+                    <line x1="12" y1="3" x2="12" y2="15"/>
                   </svg>
-                  <span>Image</span>
+                  <span>Upload</span>
                 </label>
-                <input type="file" id="imageUpload" class="file-input" accept="image/*" onchange="handleImageUpload(event)">
-
-                <label class="chat-tool" for="audioUpload">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
-                    <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
-                    <line x1="12" y1="19" x2="12" y2="23"/>
-                    <line x1="8" y1="23" x2="16" y2="23"/>
-                  </svg>
-                  <span>Audio</span>
-                </label>
-                <input type="file" id="audioUpload" class="file-input" accept="audio/*" onchange="handleAudioUpload(event)">
+                <input type="file" id="fileUpload" class="file-input" accept="*" onchange="handleFileUpload(event)">
               </div>
             </div>
           </div>
@@ -781,7 +766,7 @@
       assignments: [],
       posts: [],
       chatHistory: [],
-      uploadedImages: []
+      uploadedFiles: []
     };
 
     // Demo data
@@ -926,12 +911,39 @@
       document.getElementById('userName').textContent = state.username;
       document.getElementById('statusText').textContent = state.demoMode ? 'Demo Mode' : 'Connected';
 
+      // Load data - demo mode uses local data, otherwise fetch from MCP
+      if (state.demoMode) {
+        loadDemoData();
+      } else {
+        // Try to fetch real data from MCP server
+        fetchRealData();
+      }
+
       // Render all sections
       renderGradesOverview();
       renderAssignmentsOverview();
       renderGradesList();
       renderAssignmentsList();
       renderActivityList();
+    }
+
+    // Fetch real data from MCP server
+    async function fetchRealData() {
+      const workerUrl = localStorage.getItem('schoology-ai-worker-url');
+
+      // Try to use MCP server if available
+      try {
+        // In production, this would call the actual MCP server
+        // For now, we'll show the UI and expect real data to come through
+        if (!workerUrl) {
+          // No worker URL configured - show message that MCP needs setup
+          console.log('MCP server not configured - using demo data fallback');
+          loadDemoData();
+        }
+      } catch (e) {
+        console.log('Failed to fetch real data:', e);
+        loadDemoData();
+      }
     }
 
     function hideApp() {
@@ -1064,20 +1076,31 @@
     async function sendChatMessage() {
       const input = document.getElementById('chatInput');
       const message = input.value.trim();
-      if (!message && !state.uploadedImages.length) return;
+      if (!message && !state.uploadedFiles.length) return;
 
       const workerUrl = localStorage.getItem('schoology-ai-worker-url');
-      const model = document.getElementById('modelSelect').value;
 
       let fullMessage = message;
-      if (state.uploadedImages.length > 0) {
-        fullMessage += '\n\n[Images attached - using OCR to extract text]';
+      if (state.uploadedFiles.length > 0) {
+        fullMessage += '\n\n[Files attached]';
       }
 
-      addChatMessage('user', message || '[Image uploaded]');
+      addChatMessage('user', message || '[File uploaded]');
       state.chatHistory.push({ role: 'user', content: fullMessage });
+
+      // Summarize old messages if too many
+      if (state.chatHistory.length > 15) {
+        const summaryIndex = Math.floor(state.chatHistory.length / 2);
+        const oldMessages = state.chatHistory.slice(0, summaryIndex);
+        const summaryPrompt = `Summarize this conversation concisely in 2-3 sentences:\n` +
+          oldMessages.map(m => `${m.role}: ${m.content}`).join('\n');
+        state.chatHistory = [
+          { role: 'system', content: `Previous conversation summary: ${generateSummary(oldMessages)}` }
+        ].concat(state.chatHistory.slice(summaryIndex));
+      }
+
       input.value = '';
-      clearImagePreviews();
+      clearFilePreviews();
 
       showTypingIndicator();
 
@@ -1086,7 +1109,7 @@
           const response = await fetch(`${workerUrl}/v1/chat`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ model, messages: buildContextMessages(fullMessage), max_tokens: 4096, temperature: 0.7 })
+            body: JSON.stringify({ model: 'deepseek-chat', messages: buildContextMessages(fullMessage), max_tokens: 4096, temperature: 0.7 })
           });
           hideTypingIndicator();
           if (!response.ok) throw new Error(await response.text());
@@ -1097,7 +1120,6 @@
           handleAICommands(reply);
         } else {
           hideTypingIndicator();
-          // Demo response
           const demoResponse = generateDemoResponse(message);
           addChatMessage('assistant', demoResponse);
           state.chatHistory.push({ role: 'assistant', content: demoResponse });
@@ -1106,6 +1128,11 @@
         hideTypingIndicator();
         addChatMessage('error', `Error: ${e.message}`);
       }
+    }
+
+    function generateSummary(messages) {
+      const text = messages.map(m => m.content).join(' ');
+      return text.substring(0, 500) + (text.length > 500 ? '...' : '');
     }
 
     function generateDemoResponse(message) {
@@ -1261,45 +1288,56 @@ ${state.posts.map(p => `- ${p.author}: ${p.content.substring(0, 100)}...`).join(
       toggleEmojiPicker();
     }
 
-    // Image upload with OCR (placeholder - needs Tesseract.js)
-    async function handleImageUpload(event) {
+    // File upload handler
+    async function handleFileUpload(event) {
       const files = event.target.files;
       if (!files.length) return;
 
-      const container = document.getElementById('imagePreviewContainer');
+      const container = document.getElementById('filePreviewContainer');
       container.style.display = 'flex';
       container.innerHTML = '';
-      state.uploadedImages = [];
+      state.uploadedFiles = [];
 
       for (const file of files) {
         const reader = new FileReader();
         reader.onload = (e) => {
           const preview = document.createElement('div');
           preview.className = 'image-preview-item';
-          preview.innerHTML = `<img src="${e.target.result}" alt="Uploaded"><button class="remove-btn" onclick="removeImage(this)">×</button>`;
+          const isImage = file.type.startsWith('image/');
+          if (isImage) {
+            preview.innerHTML = `<img src="${e.target.result}" alt="${file.name}"><button class="remove-btn" onclick="removeFile(this, '${file.name}')">×</button>`;
+          } else {
+            preview.innerHTML = `<div style="padding:10px;font-size:12px;text-align:center;">📄</div><button class="remove-btn" onclick="removeFile(this, '${file.name}')">×</button>`;
+          }
           container.appendChild(preview);
-          state.uploadedImages.push({ name: file.name, data: e.target.result });
+          state.uploadedFiles.push({ name: file.name, type: file.type, data: e.target.result });
         };
         reader.readAsDataURL(file);
       }
 
-      showNotification(`${files.length} image(s) attached`, 'info');
+      showNotification(`${files.length} file(s) attached`, 'info');
       event.target.value = '';
     }
 
-    function removeImage(btn) {
+    function removeFile(btn, name) {
       btn.parentElement.remove();
-      state.uploadedImages = state.uploadedImages.slice(0, -1);
-      const container = document.getElementById('imagePreviewContainer');
+      state.uploadedFiles = state.uploadedFiles.filter(f => f.name !== name);
+      const container = document.getElementById('filePreviewContainer');
       if (!container.children.length) container.style.display = 'none';
     }
 
-    function clearImagePreviews() {
-      state.uploadedImages = [];
-      const container = document.getElementById('imagePreviewContainer');
+    function clearFilePreviews() {
+      state.uploadedFiles = [];
+      const container = document.getElementById('filePreviewContainer');
       container.innerHTML = '';
       container.style.display = 'none';
     }
+
+    // Legacy handlers (removed)
+    function handleImageUpload(event) {} // Deprecated
+    function handleAudioUpload(event) {} // Deprecated
+    function removeImage(btn) {} // Deprecated
+    function clearImagePreviews() {} // Deprecated
 
     async function handleAudioUpload(event) {
       const file = event.target.files[0];
