@@ -1,0 +1,31 @@
+# Schoology MCP Frontend project
+
+# Frontend files to track
+*.html
+*.css
+*.js
+*.md
+*.py
+*.txt
+*.sh
+
+# But ignore the schoology-mcp submodule (it's a separate repo)
+schoology-mcp/
+
+# IDE files
+.vscode/
+.idea/
+.DS_Store
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# Environment
+.env
+.env.local
+
+# OS
+.DS_Store
+Thumbs.db
