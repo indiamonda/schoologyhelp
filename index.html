@@ -647,6 +647,7 @@
         <div class="nav-tab" data-tab="grades">Grades</div>
         <div class="nav-tab" data-tab="assignments">Assignments</div>
         <div class="nav-tab" data-tab="activity">Activity</div>
+        <div class="nav-tab" data-tab="settings">Settings</div>
       </div>
 
       <!-- AI Tab (Default) -->
@@ -750,6 +751,35 @@
         <div class="section">
           <div class="section-title">Recent Posts</div>
           <div id="activityList"></div>
+        </div>
+      </div>
+
+      <!-- Settings Tab -->
+      <div class="tab-content" id="tab-settings">
+        <div class="section">
+          <div class="section-title">Settings</div>
+          <div style="max-width: 600px;">
+            <div style="margin-bottom: 24px;">
+              <label style="display: block; margin-bottom: 8px; font-weight: 500;">DeepSeek AI Proxy Worker URL</label>
+              <input type="text" id="workerUrlInput" placeholder="https://your-worker.workers.dev"
+                     style="width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 8px; font-family: inherit;">
+              <div style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 4px;">
+                Get your Worker URL by deploying the DeepSeek proxy worker to Cloudflare Workers
+              </div>
+            </div>
+            <div style="margin-bottom: 24px;">
+              <label style="display: block; margin-bottom: 8px; font-weight: 500;">API URL (Alternative)</label>
+              <input type="text" id="apiUrlInput" placeholder="http://localhost:8080"
+                     style="width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 8px; font-family: inherit;">
+              <div style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 4px;">
+                Or enter a direct API URL if you have one
+              </div>
+            </div>
+            <button onclick="saveSettings()" style="padding: 12px 24px; background: var(--primary); color: white; border: none; border-radius: 8px; cursor: pointer; font-family: inherit;">
+              Save Settings
+            </button>
+            <div id="settingsSaved" style="display: none; margin-top: 12px; color: var(--success);">Settings saved!</div>
+          </div>
         </div>
       </div>
     </div>
@@ -892,6 +922,24 @@
       hideApp();
     }
 
+    function saveSettings() {
+      const workerUrl = document.getElementById('workerUrlInput').value.trim();
+      const apiUrl = document.getElementById('apiUrlInput').value.trim();
+      if (workerUrl) localStorage.setItem('schoology-ai-worker-url', workerUrl);
+      if (apiUrl) localStorage.setItem('schoology-api-url', apiUrl);
+      document.getElementById('settingsSaved').style.display = 'block';
+      setTimeout(() => {
+        document.getElementById('settingsSaved').style.display = 'none';
+      }, 3000);
+    }
+
+    function loadSettings() {
+      const workerUrl = localStorage.getItem('schoology-ai-worker-url');
+      const apiUrl = localStorage.getItem('schoology-api-url');
+      if (workerUrl) document.getElementById('workerUrlInput').value = workerUrl;
+      if (apiUrl) document.getElementById('apiUrlInput').value = apiUrl;
+    }
+
     function loadDemoData() {
       state.grades = demoData.grades;
       state.assignments = demoData.assignments;
@@ -930,28 +978,17 @@
     // Fetch real data from MCP server
     async function fetchRealData() {
       const workerUrl = localStorage.getItem('schoology-ai-worker-url');
-      const apiUrl = localStorage.getItem('schoology-api-url');
+      const apiUrl = localStorage.getItem('schoology-api-url') || 'http://localhost:8080';
 
-      if (!workerUrl && !apiUrl) {
-        // No MCP server configured - show error
-        state.connectionError = 'MCP server not configured. Please set up the DeepSeek AI Proxy Worker URL in Settings.';
-        renderConnectionError();
-        return;
-      }
+      // Use the Flask API server for data
+      const dataUrl = workerUrl || apiUrl;
 
       try {
-        // Try to fetch from MCP server
-        const response = await fetch(`${workerUrl || apiUrl}/health`, { method: 'GET' });
-
-        if (!response.ok) {
-          throw new Error('MCP server returned error');
-        }
-
-        // Server is reachable, try to get data
-        const gradesRes = await fetch(`${workerUrl || apiUrl}/api/grades`);
-        const coursesRes = await fetch(`${workerUrl || apiUrl}/api/courses`);
-        const assignmentsRes = await fetch(`${workerUrl || apiUrl}/api/assignments`);
-        const postsRes = await fetch(`${workerUrl || apiUrl}/api/posts`);
+        // Try to fetch from Flask API server
+        const gradesRes = await fetch(`${dataUrl}/api/grades`);
+        const coursesRes = await fetch(`${dataUrl}/api/courses`);
+        const assignmentsRes = await fetch(`${dataUrl}/api/assignments`);
+        const postsRes = await fetch(`${dataUrl}/api/posts`);
 
         if (gradesRes.ok && coursesRes.ok && assignmentsRes.ok && postsRes.ok) {
           state.grades = await gradesRes.json();
@@ -963,7 +1000,7 @@
         }
 
       } catch (e) {
-        state.connectionError = `Failed to connect to MCP server: ${e.message}. Please ensure the server is running and configured correctly.`;
+        state.connectionError = `Failed to connect to API server: ${e.message}. Please ensure server.py is running.`;
         renderConnectionError();
       }
     }
@@ -1472,6 +1509,7 @@ ${state.posts.map(p => `- ${p.author}: ${p.content.substring(0, 100)}...`).join(
 
     // Init
     checkSession();
+    loadSettings();
 
     document.addEventListener('click', (e) => {
       if (!e.target.closest('.emoji-btn')) {
