@@ -1085,7 +1085,7 @@
             type: 'mcp_not_connected',
             title: 'Schoology MCP Not Connected',
             message: 'The server is running but the Schoology MCP is not connected. Real-time data is unavailable.',
-            hint: 'Contact the administrator to set up the Schoology MCP connection.'
+            hint: 'The server administrator needs to install and configure the Schoology MCP from github.com/dajun666/schoology-mcp. The MCP must be running and authenticated with valid Schoology credentials.'
           });
           return;
         }
@@ -1118,23 +1118,23 @@
         if (e.message.includes('Failed to fetch') || e.message.includes('NetworkError') || e.message.includes('network')) {
           errorType = 'network_error';
           errorTitle = 'Network Error';
-          errorMessage = 'Could not connect to the API server.';
-          errorHint = 'Check your internet connection or try again later.';
+          errorMessage = 'Could not connect to the API server at jchat.fly.dev.';
+          errorHint = 'The server may be down or unreachable. Check if jchat.fly.dev is running.';
         } else if (e.message.includes('JSON') || e.message.includes('parse')) {
           errorType = 'invalid_response';
           errorTitle = 'Invalid Server Response';
-          errorMessage = 'The server returned an invalid response.';
-          errorHint = 'The server may be misconfigured. Contact the administrator.';
+          errorMessage = 'The server returned data that could not be parsed as JSON.';
+          errorHint = 'The server at jchat.fly.dev may be misconfigured or returning an error page.';
         } else if (e.message.includes('HTML')) {
           errorType = 'server_error';
           errorTitle = 'Server Error';
-          errorMessage = 'The server returned an error page instead of data.';
-          errorHint = 'The Schoology MCP may not be properly configured on the server.';
+          errorMessage = 'The server returned HTML instead of JSON data.';
+          errorHint = 'The Schoology MCP is not properly configured on the server. The server is running but not returning real Schoology data.';
         } else if (e.message.includes('status: 5') || e.message.includes('status: 4')) {
           errorType = 'http_error';
-          errorTitle = 'Server Error (' + e.message + ')';
-          errorMessage = 'The API server returned an error status code.';
-          errorHint = 'The server encountered an error. Contact the administrator.';
+          errorTitle = 'Server Error';
+          errorMessage = 'The API server returned an HTTP error (' + gradesRes.status + ').';
+          errorHint = 'The server encountered an internal error. The Schoology MCP may not be running.';
         }
 
         showDetailedError({
