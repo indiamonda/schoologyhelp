@@ -978,9 +978,10 @@
     // Fetch real data from MCP server
     async function fetchRealData() {
       const workerUrl = localStorage.getItem('schoology-ai-worker-url');
-      const apiUrl = localStorage.getItem('schoology-api-url') || 'http://localhost:8080';
+      // Default to jchat.fly.dev/schoology as the API server
+      const apiUrl = localStorage.getItem('schoology-api-url') || 'https://jchat.fly.dev/schoology';
 
-      // Use the Flask API server for data
+      // Use the configured API server for data
       const dataUrl = workerUrl || apiUrl;
 
       try {
