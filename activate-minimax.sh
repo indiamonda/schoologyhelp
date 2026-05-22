@@ -1,8 +1,0 @@
-export ANTHROPIC_BASE_URL="https://api.minimaxi.com/anthropic"
-export ANTHROPIC_AUTH_TOKEN="MINIMAX_API_KEY"
-export API_TIMEOUT_MS="3000000"
-export CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC="1"
-export ANTHROPIC_MODEL="MiniMax-M2.7-fastmode"
-export ANTHROPIC_DEFAULT_SONNET_MODEL="MiniMax-M2.7-fastmode"
-export ANTHROPIC_DEFAULT_OPUS_MODEL="MiniMax-M2.7-fastmode"
-export ANTHROPIC_DEFAULT_HAIKU_MODEL="MiniMax-M2.7-fastmode"

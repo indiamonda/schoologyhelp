@@ -1,30 +1,17 @@
-# Schoology MCP Frontend
+# Schoology Help Frontend
 
-A web-based dashboard for the [Schoology MCP](https://github.com/dajun666/schoology-mcp) server.
+A web-based dashboard for PAUSD Schoology.
 
 ## Files
 
 - `index.html` - Frontend web interface (single-page app)
-- `server.py` - Python Flask backend that bridges frontend to MCP server
-- `requirements.txt` - Python dependencies
-- `integrate.py` - Demo script showing MCP protocol integration
 
 ## Setup
 
-```bash
-pip install -r requirements.txt
-python server.py
-```
-
-Open http://localhost:8080
+Simply open `index.html` in a browser, or serve it with any static file server.
 
 ## Architecture
 
-The frontend (index.html) communicates with the Flask server (server.py) via REST API.
-The Flask server acts as a proxy to the actual Schoology MCP server.
+The frontend communicates with the external API server at `jchat.fly.dev/schoology` via REST API.
 
-To connect to a real MCP server, update `integrate.py` with the correct path
-and register it with Claude Code using:
-```bash
-claude mcp add schoology -- /path/to/.venv/bin/python /path/to/server.py
-```
+This is a client-only application - the server-side code is at https://github.com/indiamonda/chat/
