@@ -930,20 +930,76 @@
     // Fetch real data from MCP server
     async function fetchRealData() {
       const workerUrl = localStorage.getItem('schoology-ai-worker-url');
+      const apiUrl = localStorage.getItem('schoology-api-url');
 
-      // Try to use MCP server if available
-      try {
-        // In production, this would call the actual MCP server
-        // For now, we'll show the UI and expect real data to come through
-        if (!workerUrl) {
-          // No worker URL configured - show message that MCP needs setup
-          console.log('MCP server not configured - using demo data fallback');
-          loadDemoData();
-        }
-      } catch (e) {
-        console.log('Failed to fetch real data:', e);
-        loadDemoData();
+      if (!workerUrl && !apiUrl) {
+        // No MCP server configured - show error
+        state.connectionError = 'MCP server not configured. Please set up the DeepSeek AI Proxy Worker URL in Settings.';
+        renderConnectionError();
+        return;
       }
+
+      try {
+        // Try to fetch from MCP server
+        const response = await fetch(`${workerUrl || apiUrl}/health`, { method: 'GET' });
+
+        if (!response.ok) {
+          throw new Error('MCP server returned error');
+        }
+
+        // Server is reachable, try to get data
+        const gradesRes = await fetch(`${workerUrl || apiUrl}/api/grades`);
+        const coursesRes = await fetch(`${workerUrl || apiUrl}/api/courses`);
+        const assignmentsRes = await fetch(`${workerUrl || apiUrl}/api/assignments`);
+        const postsRes = await fetch(`${workerUrl || apiUrl}/api/posts`);
+
+        if (gradesRes.ok && coursesRes.ok && assignmentsRes.ok && postsRes.ok) {
+          state.grades = await gradesRes.json();
+          state.courses = await coursesRes.json();
+          state.assignments = await assignmentsRes.json();
+          state.posts = await postsRes.json();
+        } else {
+          throw new Error('Failed to fetch some data');
+        }
+
+      } catch (e) {
+        state.connectionError = `Failed to connect to MCP server: ${e.message}. Please ensure the server is running and configured correctly.`;
+        renderConnectionError();
+      }
+    }
+
+    function renderConnectionError() {
+      const overviewGrades = document.getElementById('gradesOverview');
+      const overviewAssignments = document.getElementById('assignmentsOverview');
+
+      if (overviewGrades) {
+        overviewGrades.innerHTML = `
+          <div style="padding: 40px 20px; text-align: center; background: rgba(255,59,48,0.1); border-radius: 12px; border: 1px solid var(--error);">
+            <div style="font-size: 2rem; margin-bottom: 12px;">⚠️</div>
+            <div style="color: var(--error); font-weight: 500; margin-bottom: 8px;">Connection Error</div>
+            <div style="color: var(--text-secondary); font-size: 0.9rem;">${state.connectionError || 'Failed to connect to MCP server'}</div>
+            <div style="margin-top: 16px; font-size: 0.85rem; color: var(--text-secondary);">
+              To fix this:<br>
+              1. Start the MCP server: <code>python server.py</code><br>
+              2. Configure DeepSeek Worker URL in Settings<br>
+              3. Or use Demo Mode to preview the interface
+            </div>
+          </div>
+        `;
+      }
+
+      if (overviewAssignments) {
+        overviewAssignments.innerHTML = '<div style="text-align: center; padding: 40px; color: var(--text-secondary);">No data available - connection error</div>';
+      }
+
+      // Also update other sections
+      const gradesList = document.getElementById('gradesList');
+      const assignmentsList = document.getElementById('assignmentsList');
+      const activityList = document.getElementById('activityList');
+
+      if (gradesList) gradesList.innerHTML = '<div style="text-align: center; padding: 40px; color: var(--text-secondary);">No data - connection error</div>';
+      if (assignmentsList) assignmentsList.innerHTML = '<div style="text-align: center; padding: 40px; color: var(--text-secondary);">No data - connection error</div>';
+      if (activityList) activityList.innerHTML = '<div style="text-align: center; padding: 40px; color: var(--text-secondary);">No data - connection error</div>';
     }
 
     function hideApp() {
